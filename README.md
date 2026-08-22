@@ -1,131 +1,542 @@
 # 🌾 AgriConnect — Smart Farming Management System
 
-A full-stack, modern, clean, and beginner-friendly agricultural management web platform built using **Python Django**, **PostgreSQL**, **HTML5**, **CSS3**, and **JavaScript**.
+<p align="center">
+  <img src="https://img.icons8.com/fluency/96/plant-under-rain.png" alt="AgriConnect Logo" width="90">
+</p>
 
-Designed as a complete college practical/capstone project, **AgriConnect** empowers farmers to digitize crop cycles, monitor cultivated land acreage, track harvest schedules, explore agronomic best practices, and view weather forecasts through a responsive dashboard.
+<h3 align="center">
+  Smart Digital Farming Management Platform for Gujarat Farmers
+</h3>
+
+<p align="center">
+  A modern full-stack farming management website built with Django, PostgreSQL, HTML, CSS and JavaScript.
+</p>
+
+<p align="center">
+
+  <a href="https://github.com/GohilVijay07/AgriConnect">
+    <img src="https://img.shields.io/badge/GitHub-AgriConnect-black?style=for-the-badge&logo=github">
+  </a>
+
+  <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python">
+  <img src="https://img.shields.io/badge/Django-5.x-green?style=for-the-badge&logo=django">
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql">
+  <img src="https://img.shields.io/badge/HTML5-Frontend-orange?style=for-the-badge&logo=html5">
+  <img src="https://img.shields.io/badge/CSS3-Styling-blue?style=for-the-badge&logo=css3">
+  <img src="https://img.shields.io/badge/JavaScript-Frontend-yellow?style=for-the-badge&logo=javascript">
+
+</p>
 
 ---
 
-## 📸 Key Features
+## 🌾 About AgriConnect
 
-- 🔐 **Django Authentication System**: Secure farmer registration, split-screen login layout with quotes, session remember-me, and logout.
-- 👨‍🌾 **Farmer Dashboard**: Interactive overview with real-time statistics (Total Crops, Active Plantings, Harvested Crops, Cultivated Land Area in acres).
-- 🌾 **Full Crop CRUD Management**:
-  - Add crops with variety, category, season, acreage, sowing date, expected harvest date, and agronomic notes.
-  - Responsive **My Crops** table with live status badges (`Planted`, `Growing`, `Ready to Harvest`, `Harvested`).
-  - Strict ownership-level security preventing farmers from viewing, editing, or deleting another user's crops.
-  - JavaScript-powered deletion confirmation modal.
-- 🔍 **Real-time Crop Catalog & Search**: Interactive library of major crops (Wheat, Rice, Cotton, Maize, Tomato, Potato, Sugarcane, Groundnut, Soybean, Mustard, Onion, Chickpea) with real-time instant search filtering.
-- 💡 **Actionable Farming Tips**: Categorized guidance for Soil Preparation, Micro-Irrigation, Fertilizer Nutrition, Integrated Pest Management, Crop Rotation, and Organic Cultivation.
-- 🌤️ **Agricultural Weather Advisory**: Weather metrics (temperature, humidity, wind velocity, rain probability) with region search and 5-day forecasts.
-- 👤 **Farmer Profile Management**: Update full name, contact numbers, email, and farm location.
-- 📬 **Contact & Inquiry Support**: Visitor inquiry form with message storage in PostgreSQL and instant feedback.
-- 🛠️ **Django Administration Panel**: Customized administrative portal for managing farmers, crop inventories, and support messages.
+**AgriConnect** is a modern, full-stack agricultural management platform developed using **Python Django, PostgreSQL, HTML5, CSS3 and JavaScript**.
+
+The main purpose of this project is to provide farmers with a simple digital platform where they can manage their farming activities, crops, farm area, harvest schedules, farming knowledge and weather information.
+
+The project is specially designed with a **Gujarat-focused farming approach**, making it suitable for farmers and agricultural activities across Gujarat, India.
+
+AgriConnect combines:
+
+- 🌾 Crop Management
+- 👨‍🌾 Farmer Dashboard
+- 🌦️ Gujarat Weather Information
+- 💡 Farming Tips
+- 🔐 Secure Authentication
+- 📧 Email OTP Verification
+- 🔑 Forgot Password with OTP
+- 📬 Contact & Support
+- 🛠️ Django Admin Panel
+- 📊 Farmer Statistics
+- 👤 Farmer Profile Management
 
 ---
 
-## 🏛️ System Architecture (MVT Pattern)
+# ✨ Key Features
 
-AgriConnect follows the standard Django **Model-View-Template (MVT)** architecture:
+## 🔐 Secure Authentication
+
+AgriConnect includes a complete Django authentication system.
+
+Features include:
+
+- Farmer Registration
+- Farmer Login
+- Logout
+- Remember Me
+- Password Security
+- Email Verification
+- 6-Digit OTP Verification
+- OTP Resend
+- OTP Expiration
+- Forgot Password
+- Password Reset using OTP
+- Unverified users cannot access protected pages
+
+---
+
+## 📧 Email OTP Verification
+
+New users must verify their email address before accessing the farmer dashboard.
+
+### OTP Flow
 
 ```text
-[ Browser / Client (HTML5 + CSS3 + Vanilla JS) ]
-                     │  HTTP / CSRF
-                     ▼
-             [ Django URLs ]
-                     │
-                     ▼
-            [ Django Views ] ─── (Forms & Auth Validation)
-            ┌────────┴────────┐
-            ▼                 ▼
-   [ Django Templates ]  [ Django Models ]
-       (HTML5/CSS/JS)         │
-                              ▼
-                    [ PostgreSQL Database ]
+User Registration
+       ↓
+Account Created
+       ↓
+6-Digit OTP Generated
+       ↓
+OTP Sent to Email
+       ↓
+User Enters OTP
+       ↓
+OTP Verified
+       ↓
+Account Activated
+       ↓
+User Can Login
+```
+
+Security features include:
+
+- 🔢 6-digit numeric OTP
+- 🔐 Hashed OTP storage
+- ⏱️ OTP expiration
+- 🚫 Maximum failed attempts
+- 🔄 OTP resend cooldown
+- ✅ Single-use verification
+- 🔒 Unverified accounts remain inactive
+
+---
+
+# 🔑 Forgot Password with OTP
+
+AgriConnect also provides a secure password recovery system.
+
+### Password Reset Flow
+
+```text
+Forgot Password
+       ↓
+Enter Registered Email
+       ↓
+OTP Sent to Email
+       ↓
+Enter 6-Digit OTP
+       ↓
+OTP Verified
+       ↓
+Create New Password
+       ↓
+Password Updated
+       ↓
+Login
+```
+
+Users can recover their account without needing to contact the administrator.
+
+---
+
+# 👨‍🌾 Farmer Dashboard
+
+After successful login, farmers get access to a personalized dashboard.
+
+The dashboard displays:
+
+- 🌾 Total Crops
+- 🌱 Active Crops
+- 📦 Harvested Crops
+- 📐 Total Farm Area
+- 📅 Recent Crop Plantings
+- 🌦️ Weather Access
+- 💡 Farming Tips
+- 👤 Profile Management
+
+The dashboard is designed to provide a quick overview of the farmer's agricultural activities.
+
+---
+
+# 🌾 Crop Management
+
+AgriConnect provides complete **CRUD functionality** for crop management.
+
+Farmers can:
+
+- ➕ Add Crops
+- 👁️ View Crops
+- ✏️ Edit Crops
+- 🗑️ Delete Crops
+- 📅 Track Planting Dates
+- 📅 Track Expected Harvest Dates
+- 📐 Manage Farm Area
+- 🌱 Select Crop Season
+- 📝 Add Farming Notes
+
+### Crop Status
+
+The system supports statuses such as:
+
+```text
+Planted
+Growing
+Ready to Harvest
+Harvested
+```
+
+Each farmer can only access their own crop records.
+
+---
+
+# 🔍 Crop Catalog
+
+The website contains a searchable crop catalog.
+
+Example crops:
+
+- 🌾 Wheat
+- 🌾 Rice
+- 🌿 Cotton
+- 🌽 Maize
+- 🍅 Tomato
+- 🥔 Potato
+- 🎋 Sugarcane
+- 🥜 Groundnut
+- 🌱 Soybean
+- 🌿 Mustard
+- 🧅 Onion
+- 🫘 Chickpea
+
+The crop catalog includes JavaScript-powered instant search.
+
+---
+
+# 💡 Farming Tips
+
+AgriConnect provides useful agricultural information organized into different categories.
+
+### Categories
+
+- 🌱 Soil Preparation
+- 💧 Micro-Irrigation
+- 🧪 Fertilizer & Nutrition
+- 🐛 Integrated Pest Management
+- 🔄 Crop Rotation
+- 🌿 Organic Farming
+
+The goal is to make useful farming information easier to access from one platform.
+
+---
+
+# 🌦️ Gujarat Weather System
+
+AgriConnect provides weather information specifically focused on **Gujarat, India**.
+
+The system uses **WeatherAPI.com** for weather data.
+
+### Weather Features
+
+- 🌡️ Current Temperature
+- 🌤️ Weather Condition
+- 💧 Humidity
+- 🌬️ Wind Speed
+- 🌧️ Rain Probability
+- 🌡️ Feels Like Temperature
+- 👁️ Visibility
+- ☀️ UV Index
+- 📅 5-Day Forecast
+- 🌧️ Rainfall Information
+- 🌾 Farmer-Friendly Weather Advice
+
+---
+
+## 📍 Gujarat Locations
+
+The weather system supports Gujarat locations such as:
+
+- Ahmedabad
+- Amreli
+- Anand
+- Aravalli
+- Banaskantha
+- Bharuch
+- Bhavnagar
+- Botad
+- Chhota Udepur
+- Dahod
+- Dang
+- Devbhoomi Dwarka
+- Gandhinagar
+- Gir Somnath
+- Jamnagar
+- Junagadh
+- Kheda
+- Kutch
+- Mahisagar
+- Mehsana
+- Morbi
+- Narmada
+- Navsari
+- Panchmahal
+- Patan
+- Porbandar
+- Rajkot
+- Sabarkantha
+- Surat
+- Surendranagar
+- Tapi
+- Vadodara
+- Valsad
+
+The application is designed to prevent unsupported locations outside Gujarat from being used in the Gujarat-focused weather system.
+
+---
+
+# 🌦️ Weather Architecture
+
+The WeatherAPI key is kept on the Django backend.
+
+```text
+User Browser
+     │
+     ▼
+AgriConnect Weather Page
+     │
+     ▼
+Django Weather Endpoint
+     │
+     ▼
+WeatherAPI.com
+     │
+     ▼
+Weather Data
+     │
+     ▼
+Django Backend
+     │
+     ▼
+AgriConnect Frontend
+```
+
+The API key is **not exposed to the browser**.
+
+---
+
+# 👤 Farmer Profile
+
+Farmers can manage their profile information.
+
+Profile includes:
+
+- Full Name
+- Email
+- Phone Number
+- Farm Location
+- Account Information
+
+---
+
+# 📬 Contact & Support
+
+Visitors can contact the AgriConnect support team using the contact form.
+
+The system stores:
+
+- Name
+- Email
+- Subject
+- Message
+- Date & Time
+
+Contact messages can also be managed through the Django Admin Panel.
+
+---
+
+# 🛠️ Admin Panel
+
+AgriConnect includes a customized **Django Administration Panel**.
+
+Administrators can manage:
+
+- 👨‍🌾 Farmers
+- 🌾 Crop Records
+- 📬 Contact Messages
+- 📧 Verification Records
+- 👤 User Accounts
+- 📊 Website Data
+
+The admin panel provides centralized management of the application.
+
+---
+
+# 📊 Admin Dashboard
+
+The administration system can be used to monitor important application information such as:
+
+- Total Registered Users
+- Total Crops
+- Active Crops
+- Harvested Crops
+- Total Farm Area
+- Contact Messages
+- Recent User Registrations
+- Recent Crop Activities
+
+---
+
+# 🏛️ System Architecture
+
+AgriConnect follows the **Django Model-View-Template (MVT)** architecture.
+
+```text
+                  ┌─────────────────────┐
+                  │   User / Browser    │
+                  │ HTML CSS JavaScript │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │     Django URLs     │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │    Django Views     │
+                  │ Auth / Validation   │
+                  └───────┬───────┬─────┘
+                          │       │
+              ┌───────────┘       └───────────┐
+              ▼                               ▼
+      ┌─────────────────┐             ┌─────────────────┐
+      │ Django Templates│             │ Django Models   │
+      │ HTML/CSS/JS     │             │ Python ORM      │
+      └─────────────────┘             └────────┬────────┘
+                                               │
+                                               ▼
+                                      ┌─────────────────┐
+                                      │   PostgreSQL    │
+                                      │    Database     │
+                                      └─────────────────┘
 ```
 
 ---
 
-## 🛠️ Technology Stack
+# 🛠️ Technology Stack
 
-| Layer | Technology | Description |
-|---|---|---|
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript | Bespoke agricultural design system (CSS variables, Flexbox, CSS Grid, mobile drawer). Zero React, zero heavy bloat. |
-| **Backend** | Python (3.10+), Django (5.0+) | Robust web framework with built-in ORM, security, CSRF protection, and session management. |
-| **Database** | PostgreSQL (with pgAdmin GUI) | High-performance enterprise relational database managed via `psycopg2-binary`. |
-| **Icons & Typography** | Font Awesome 6.5, Outfit & Plus Jakarta Sans | Google Fonts and scalable vector icons. |
-| **Configuration** | `python-dotenv` | Environment variable management for database credentials and secret keys. |
+| Technology | Purpose |
+|---|---|
+| 🐍 Python | Backend programming |
+| 🟢 Django | Web framework |
+| 🌐 HTML5 | Website structure |
+| 🎨 CSS3 | UI and responsive design |
+| ⚡ JavaScript | Interactive functionality |
+| 🐘 PostgreSQL | Database |
+| 🛠️ pgAdmin | Database management |
+| 🌦️ WeatherAPI.com | Weather data |
+| 🔐 Django Auth | Authentication |
+| 📧 SMTP | Email OTP |
+| 🔑 python-dotenv | Environment variables |
+| ⭐ Font Awesome | Icons |
 
 ---
 
-## 🧱 Database Models & Schema
+# 🗄️ Database
+
+AgriConnect uses:
+
+**PostgreSQL**
+
+with:
+
+**pgAdmin**
+
+for database management.
+
+### Main database entities
 
 ```text
-+---------------------+          +-----------------------------+
-|   auth_user         | 1      1 |        FarmerProfile        |
-+---------------------+----------+-----------------------------+
-| id (PK)             |          | id (PK)                     |
-| username            |          | user_id (OneToOne -> User)  |
-| email               |          | full_name                   |
-| password (hashed)   |          | phone                       |
-| date_joined         |          | farm_location               |
-+---------------------+          | created_at / updated_at     |
-          | 1                    +-----------------------------+
-          |
-          | *
-+------------------------------------+
-|               Crop                 |
-+------------------------------------+
-| id (PK)                            |
-| farmer_id (FK -> User)             |
-| crop_name                          |
-| crop_type (Cereal, Pulse, etc.)    |
-| season (Kharif, Rabi, etc.)        |
-| farm_area (Decimal in Acres)       |
-| planting_date                      |
-| expected_harvest_date              |
-| status (Planted, Growing, etc.)    |
-| notes                              |
-| created_at / updated_at            |
-+------------------------------------+
+User
+ │
+ ├── FarmerProfile
+ │
+ ├── Crop
+ │
+ └── EmailVerificationOTP
 
-+------------------------------------+
-|          ContactMessage            |
-+------------------------------------+
-| id (PK)                            |
-| name                               |
-| email                              |
-| subject                            |
-| message                            |
-| created_at                         |
-+------------------------------------+
-
-+------------------------------------+
-|        EmailVerificationOTP        |
-+------------------------------------+
-| id (PK)                            |
-| user_id (FK -> User)               |
-| otp_hash (Hashed 6-digit OTP)      |
-| created_at                         |
-| expires_at (10-min validity)       |
-| is_verified (Boolean)              |
-| attempts (Max 5 failed attempts)   |
-+------------------------------------+
+ContactMessage
 ```
 
 ---
 
-## 📂 Project Directory Structure
+# 🧱 Database Models
+
+### FarmerProfile
 
 ```text
-d:\farming\
+id
+user
+full_name
+phone
+farm_location
+created_at
+updated_at
+```
+
+### Crop
+
+```text
+id
+farmer
+crop_name
+crop_type
+season
+farm_area
+planting_date
+expected_harvest_date
+status
+notes
+created_at
+updated_at
+```
+
+### ContactMessage
+
+```text
+id
+name
+email
+subject
+message
+created_at
+```
+
+### EmailVerificationOTP
+
+```text
+id
+user
+otp_hash
+created_at
+expires_at
+is_verified
+attempts
+```
+
+---
+
+# 📂 Project Structure
+
+```text
+AgriConnect/
 │
 ├── manage.py
 ├── requirements.txt
+├── README.md
 ├── .env
 ├── .env.example
 ├── .gitignore
-├── README.md
 │
 ├── agriconnect/
 │   ├── __init__.py
@@ -135,7 +546,7 @@ d:\farming\
 │   └── asgi.py
 │
 └── farming/
-    ├── __init__.py
+    │
     ├── admin.py
     ├── apps.py
     ├── forms.py
@@ -162,6 +573,8 @@ d:\farming\
             ├── login.html
             ├── register.html
             ├── verify_otp.html
+            ├── forgot_password.html
+            ├── reset_password.html
             ├── dashboard.html
             ├── my_crops.html
             ├── add_crop.html
@@ -169,36 +582,39 @@ d:\farming\
             └── profile.html
 ```
 
-
 ---
 
-## 🚀 Quick Setup & Installation Guide
+# 🚀 Installation & Setup
 
-### Prerequisites
-- Python 3.10 or higher
-- PostgreSQL & pgAdmin installed and running on your Windows PC
-
----
-
-### Step 1: Clone or Navigate to the Project Directory
+## 1. Clone the Repository
 
 ```bash
-cd d:\farming
+git clone https://github.com/GohilVijay07/AgriConnect.git
+```
+
+```bash
+cd AgriConnect
 ```
 
 ---
 
-### Step 2: Create and Activate a Python Virtual Environment
+## 2. Create Virtual Environment
 
-**On Windows (PowerShell / Command Prompt):**
+### Windows
+
 ```bash
 python -m venv venv
+```
+
+Activate:
+
+```bash
 venv\Scripts\activate
 ```
 
 ---
 
-### Step 3: Install Required Dependencies
+## 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -206,193 +622,282 @@ pip install -r requirements.txt
 
 ---
 
-### Step 4: Configure PostgreSQL & pgAdmin
+# 🐘 PostgreSQL Setup
 
-1. Open **pgAdmin** (or `psql` command line):
-   - Right-click **Databases** → **Create** → **Database...**
-   - Set **Database Name**: `agriconnect_db`
-   - Click **Save**
+Make sure PostgreSQL is installed and running.
 
-   *(Or execute in SQL Query Tool:)*
-   ```sql
-   CREATE DATABASE agriconnect_db;
-   ```
+Open **pgAdmin**.
 
-2. Review or update your `.env` file in project root with your PostgreSQL password:
+Create a database:
+
+```text
+agriconnect_db
+```
+
+Or execute:
+
+```sql
+CREATE DATABASE agriconnect_db;
+```
+
+---
+
+# 🔐 Environment Variables
+
+Create a `.env` file in the project root.
+
+Example:
+
 ```env
-SECRET_KEY=django-insecure-agriconnect-smart-farming-mgmt-system-key-2026
+SECRET_KEY=your_django_secret_key
 DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
 
 DB_NAME=agriconnect_db
 DB_USER=postgres
-DB_PASSWORD=YOUR_POSTGRES_PASSWORD
+DB_PASSWORD=your_postgresql_password
 DB_HOST=localhost
 DB_PORT=5432
-```
 
----
+WEATHER_API_KEY=your_weatherapi_key
 
-### Step 5: Run Database Migrations
-
-```bash
-python manage.py makemigrations
-python manage.py migrate
-```
-
----
-
-### Step 6: Create an Admin Superuser
-
-```bash
-python manage.py createsuperuser
-```
-Follow prompts to set username (e.g. `admin`), email, and password.
-
----
-
-### Step 7: Run Automated Tests
-
-```bash
-python manage.py test farming
-```
-
----
-
-### Step 8: Start the Development Server
-
-```bash
-python manage.py runserver
-```
-
-Open your browser and visit:
-- 🌾 **Website**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- 🛡️ **Admin Portal**: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
-
----
-
-## 🔗 URL Routing Map
-
-| URL Pattern | View Name | Description | Access Level |
-|---|---|---|---|
-| `/` | `home` | Landing page with hero & key pillars | Public |
-| `/about/` | `about` | About platform, mission & advantages | Public |
-| `/crops/` | `crops` | Crop catalog with instant search filter | Public |
-| `/farming-tips/` | `farming_tips` | Agronomy best practices & category tabs | Public |
-| `/weather/` | `weather` | Weather metrics & 5-day forecast | Public |
-| `/contact/` | `contact` | Contact form saved to PostgreSQL | Public |
-| `/register/` | `register` | Farmer account registration (generates 6-digit OTP) | Public |
-| `/verify-otp/` | `verify_otp` | 6-digit numeric OTP verification page | Public |
-| `/resend-otp/` | `resend_otp` | Resend fresh OTP with 60s cooldown | Public |
-| `/login/` | `login` | Split-screen farmer login | Public |
-| `/logout/` | `logout` | Session destroy & redirect | Authenticated |
-| `/dashboard/` | `dashboard` | Farmer overview & live statistics | Farmer Only (`@login_required`) |
-| `/my-crops/` | `my_crops` | Crop inventory table with badges | Farmer Only (`@login_required`) |
-| `/add-crop/` | `add_crop` | Form to record new crop | Farmer Only (`@login_required`) |
-| `/edit-crop/<id>/` | `edit_crop` | Update crop info (owner check) | Farmer Only (`@login_required`) |
-| `/delete-crop/<id>/` | `delete_crop`| Remove crop record (owner check) | Farmer Only (`@login_required`) |
-| `/profile/` | `profile` | View and edit farmer profile info | Farmer Only (`@login_required`) |
-| `/admin/` | `admin:index` | Django administrative interface | Superuser / Staff |
-
----
-
-## 📧 Email 6-Digit OTP Verification System
-
-AgriConnect uses a **secure 6-digit numeric OTP email verification workflow** instead of token links.
-
-```text
-1. User enters registration details.
-2. Account is created in inactive status (is_active = False).
-3. A random, cryptographically secure 6-digit OTP is generated.
-4. The OTP is salted & hashed using PBKDF2/SHA-256 before saving to PostgreSQL.
-5. Rich HTML and plain-text fallback emails are dispatched to the user's email.
-6. The user is redirected to /verify-otp/ with a modern 6-box input interface.
-7. The OTP is valid for exactly 3 minutes (live countdown timer).
-
-8. A maximum of 5 incorrect attempts is permitted before the OTP is invalidated.
-9. Resending an OTP triggers a 60-second cooldown timer both client-side and server-side.
-10. Correct OTP verification marks the account active (is_active = True) and redirects to Login.
-11. Unverified accounts cannot log in and are prompted to verify or resend their OTP.
-```
-
----
-
-### 🧪 Local Testing without Sending Real Emails (Console Backend)
-
-For instant local testing and grading without SMTP or internet credentials, configure your `.env`:
-
-```env
-EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-```
-
-When registering a new user or requesting an OTP resend, Django will automatically print the complete email and **6-digit OTP directly to your terminal console**.
-
----
-
-### 📬 Gmail SMTP Configuration (Production with Google App Password)
-
-To send real emails to Gmail or other inboxes:
-
-1. Enable **2-Step Verification** on your Google Account:
-   - Go to [Google Account Security](https://myaccount.google.com/security)
-2. Generate an **App Password**:
-   - Search for **App passwords** in your Google Account search bar
-   - App Name: `AgriConnect`
-   - Copy the generated 16-character password (e.g. `abcd efgh ijkl mnop`)
-3. Update your `.env` file:
-
-```env
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_16_char_app_password
+EMAIL_HOST_PASSWORD=your_gmail_app_password
 DEFAULT_FROM_EMAIL=AgriConnect <your_email@gmail.com>
 ```
 
-> [!NOTE]
-> Do NOT use your regular Gmail login password. Always use a Google App Password.
+⚠️ **Never upload the real `.env` file or API keys to GitHub.**
 
 ---
 
-### 🛡️ How OTP Security Works
+# 🗃️ Run Migrations
 
-1. **Cryptographically Secure Random Generation**: Generated using Python's `secrets.randbelow(1000000)` instead of pseudo-random generators.
-2. **Database Hashing**: The actual 6-digit code is **never stored in plain text**. Only a salted PBKDF2-SHA256 hash is saved in `EmailVerificationOTP.otp_hash`.
-3. **Single-Use Invalidation**: Upon successful verification, the OTP is marked `is_verified = True` and cannot be reused.
-4. **10-Minute Expiration**: Requests older than 10 minutes are strictly rejected by the server.
-5. **Brute-Force Protection**: Capped at 5 failed attempts per OTP record. Exceeding 5 attempts immediately invalidates the OTP.
-6. **Rate-Limiting**: 60-second cooldown enforced on the server preventing spam requests.
-7. **Session Segregation**: Unverified accounts have `is_active = False`, blocking all authenticated dashboard routes until verification completes.
+```bash
+python manage.py makemigrations
+```
 
-
----
-
-## 🔒 Security Best Practices Implemented
-
-1. **CSRF Protection**: All form submissions include `{% csrf_token %}` to prevent Cross-Site Request Forgery.
-2. **Strict User Data Isolation**: Queries filter exclusively by `farmer=request.user`. Unauthorized modification attempts to another user's crop ID are blocked.
-3. **Password Security**: Passwords are never stored in plain text; Django's PBKDF2 with SHA-256 algorithm is utilized.
-4. **Environment Isolation**: Database credentials and secret keys are managed through `.env` and omitted from version control via `.gitignore`.
-5. **Session Safety**: Supports session expiration on browser close unless "Remember Me" is selected.
+```bash
+python manage.py migrate
+```
 
 ---
 
-## 🎓 College Viva / Practical Q&A Cheat Sheet
+# 👨‍💻 Create Admin Account
 
-**Q1: What is Django MVT architecture?**
-- **Model**: Python classes in `models.py` that map directly to PostgreSQL tables.
-- **View**: Python functions in `views.py` that process incoming HTTP requests and return HTTP responses.
-- **Template**: HTML5 files with Django Template Language (DTL) tags to dynamically render data.
+```bash
+python manage.py createsuperuser
+```
 
-**Q2: Why use PostgreSQL and psycopg2-binary with Django?**
-- PostgreSQL is an advanced open-source Object-Relational Database Management System (ORDBMS) offering high concurrency, strict ACID compliance, and robust data integrity. `psycopg2-binary` provides the high-speed C-optimized database adapter between Django ORM and PostgreSQL.
-
-**Q3: How does data isolation work between different farmers?**
-- In `views.py`, functions use the `@login_required` decorator, and every query strictly applies `.filter(farmer=request.user)`. If an ID is passed in `/edit-crop/<id>/`, the view verifies `if crop.farmer != request.user:` before executing any updates.
+Follow the instructions and create your admin account.
 
 ---
 
-## 📜 License
-Developed for educational, university, and agricultural development purposes.
+# 🧪 Run Tests
+
+```bash
+python manage.py test
+```
+
+---
+
+# ▶️ Run the Website
+
+```bash
+python manage.py runserver
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Admin:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+---
+
+# 🔗 Main Pages
+
+| Page | URL |
+|---|---|
+| 🏠 Home | `/` |
+| ℹ️ About | `/about/` |
+| 🌾 Crops | `/crops/` |
+| 💡 Farming Tips | `/farming-tips/` |
+| 🌦️ Weather | `/weather/` |
+| 📬 Contact | `/contact/` |
+| 📝 Register | `/register/` |
+| 🔢 Verify OTP | `/verify-otp/` |
+| 🔄 Resend OTP | `/resend-otp/` |
+| 🔐 Login | `/login/` |
+| 🔑 Forgot Password | `/forgot-password/` |
+| 👨‍🌾 Dashboard | `/dashboard/` |
+| 🌾 My Crops | `/my-crops/` |
+| ➕ Add Crop | `/add-crop/` |
+| 👤 Profile | `/profile/` |
+| 🛠️ Admin | `/admin/` |
+
+---
+
+# 🔒 Security
+
+AgriConnect implements several security practices:
+
+- 🔐 Django password hashing
+- 🛡️ CSRF protection
+- 🔑 Environment variables
+- 🚫 API key protection
+- 👤 User-specific data isolation
+- 🔒 Login-protected dashboard
+- 🔐 Hashed OTP storage
+- ⏱️ OTP expiration
+- 🚫 OTP brute-force protection
+- 🔄 OTP resend rate limiting
+- 🗄️ Secure PostgreSQL database access
+
+Each farmer can access only their own crop records.
+
+---
+
+# 📱 Responsive Design
+
+AgriConnect is designed for:
+
+- 💻 Desktop
+- 💻 Laptop
+- 📱 Mobile
+- 📲 Tablet
+
+The interface uses responsive CSS with:
+
+- Flexbox
+- CSS Grid
+- Responsive navigation
+- Mobile-friendly forms
+- Responsive cards and tables
+
+---
+
+# 🎯 Project Objectives
+
+The main objectives of AgriConnect are:
+
+1. Build a real-world Django web application.
+2. Learn Django MVT architecture.
+3. Implement PostgreSQL database integration.
+4. Implement secure authentication.
+5. Implement email OTP verification.
+6. Implement password recovery using OTP.
+7. Build complete CRUD functionality.
+8. Integrate real weather information.
+9. Create a responsive frontend.
+10. Build an administrative management system.
+11. Develop a practical agricultural solution for Gujarat farmers.
+
+---
+
+# 🎓 College Project
+
+AgriConnect was developed as a **college practical / academic capstone project** to demonstrate practical knowledge of:
+
+```text
+Python
+Django
+HTML
+CSS
+JavaScript
+PostgreSQL
+Database Management
+Authentication
+REST/API Integration
+Responsive Web Design
+```
+
+---
+
+# 🚧 Future Improvements
+
+Possible future improvements:
+
+- 📱 Progressive Web App
+- 🌦️ Advanced weather alerts
+- 🌾 Crop disease detection
+- 🤖 AI farming assistant
+- 📊 Advanced crop analytics
+- 📈 Market price tracking
+- 🛒 Agricultural marketplace
+- 🚜 Farm equipment management
+- 📍 Gujarat district-wise agricultural insights
+- 🌐 Gujarati language support
+- 📱 Mobile application
+- 🔔 Weather notifications
+- 📊 Advanced admin analytics
+
+---
+
+# ⚠️ Disclaimer
+
+AgriConnect is an **educational and academic project** created for learning and demonstration purposes.
+
+Weather information is provided through WeatherAPI.com.
+
+Agricultural recommendations shown by the application are general informational guidance and should not replace professional agricultural advice.
+
+---
+
+# 👨‍💻 Developer
+
+## Vijay Gohil
+
+**Python Developer | Django Developer | Web Developer | AI & Technology Enthusiast**
+
+I enjoy building practical applications using Python, Django, databases and modern web technologies.
+
+### 🔗 Connect With Me
+
+<p>
+  <a href="https://github.com/GohilVijay07">
+    <img src="https://img.shields.io/badge/GitHub-GohilVijay07-black?style=for-the-badge&logo=github">
+  </a>
+</p>
+
+### GitHub Profile
+
+https://github.com/GohilVijay07
+
+### AgriConnect Repository
+
+https://github.com/GohilVijay07/AgriConnect
+
+---
+
+# ⭐ Support
+
+If you like this project:
+
+⭐ Star the repository
+
+🍴 Fork the repository
+
+🐛 Report issues
+
+💡 Suggest improvements
+
+Your support motivates me to build more projects! 🚀
+
+---
+
+<p align="center">
+
+### 🌾 Made with ❤️ by Vijay Gohil
+
+**AgriConnect — Smart Farming Management for Gujarat**
+
+</p>
