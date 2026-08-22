@@ -589,7 +589,7 @@ AgriConnect/
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/GohilVijay07/AgriConnect.git
+git clone https://github.com/GohilVijay07/farming.git
 ```
 
 ```bash
@@ -874,7 +874,7 @@ https://github.com/GohilVijay07
 
 ### AgriConnect Repository
 
-https://github.com/GohilVijay07/AgriConnect
+https://github.com/GohilVijay07/farming
 
 ---
 
