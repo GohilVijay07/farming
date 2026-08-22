@@ -1,0 +1,90 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Farming Tips Management | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}Farming Tips{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Farming Tips & Best Practices</h1>
+        <p class="admin-page-subtitle">Publish and manage actionable agricultural advice displayed across the public portal.</p>
+    </div>
+    <div>
+        <a href="{% url 'admin_tip_add' %}" class="btn-admin btn-admin-primary btn-admin-sm">
+            <i class="fa-solid fa-plus"></i> Add New Tip
+        </a>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fa-solid fa-lightbulb"></i>
+            All Agricultural Tips ({{ tips.count }})
+        </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Tip Title</th>
+                        <th>Description & Advice</th>
+                        <th>Badge Level</th>
+                        <th>Icon / Image</th>
+                        <th>Created</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tip in tips %}
+                    <tr>
+                        <td>
+                            <span class="status-pill pill-green" style="font-weight: 700;">
+                                {{ tip.category }}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text);">{{ tip.title }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.84rem; color: var(--text-muted); max-width: 380px; line-height: 1.4;">
+                                {{ tip.description|truncatechars:120 }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-pill pill-blue">{{ tip.level }}</span>
+                        </td>
+                        <td>
+                            <i class="fa-solid {{ tip.icon|default:'fa-seedling' }}" style="font-size: 1.2rem; color: var(--primary);"></i>
+                        </td>
+                        <td style="font-size: 0.78rem; color: var(--text-muted); white-space: nowrap;">
+                            {{ tip.created_at|date:"d M Y" }}
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="table-actions" style="justify-content: flex-end;">
+                                <a href="{% url 'admin_tip_edit' tip.id %}" class="btn-icon" title="Edit Tip">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <button type="button" class="btn-icon icon-danger" title="Delete Tip"
+                                        onclick="openDeleteConfirmModal('{% url 'admin_tip_delete' tip.id %}', 'Delete farming tip {{ tip.title }}?');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                            No farming tips recorded yet. Click "Add New Tip" to create one.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

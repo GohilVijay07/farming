@@ -1,0 +1,203 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"AgriConnect Admin Dashboard" }}{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Admin Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="admin-body">
+
+    <!-- Flash Notification Alerts -->
+    {% if messages %}
+    <div class="admin-alerts-container" id="adminAlertsContainer">
+        {% for message in messages %}
+        <div class="admin-alert admin-alert-{{ message.tags|default:'info' }}">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button type="button" class="admin-alert-close">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Mobile Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="admin-layout">
+        <!-- ==========================================
+             Admin Sidebar
+             ========================================== -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div>
+                        <div class="sidebar-brand-title">Agri<span>Connect</span></div>
+                        <div class="sidebar-brand-subtitle">Admin Panel</div>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Core Overview</div>
+                <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if admin_active_nav == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'admin_analytics' %}" class="sidebar-link {% if admin_active_nav == 'analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+
+                <div class="nav-section-title">Management</div>
+                <a href="{% url 'admin_users' %}" class="sidebar-link {% if admin_active_nav == 'users' %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Users</span>
+                </a>
+                <a href="{% url 'admin_crops' %}" class="sidebar-link {% if admin_active_nav == 'crops' %}active{% endif %}">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                    <span>Crops</span>
+                </a>
+                <a href="{% url 'admin_messages' %}" class="sidebar-link {% if admin_active_nav == 'messages' %}active{% endif %}">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Messages</span>
+                    {% if admin_unread_messages_count > 0 %}
+                    <span class="sidebar-badge">{{ admin_unread_messages_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'admin_otp' %}" class="sidebar-link {% if admin_active_nav == 'otp' %}active{% endif %}">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Email Verification</span>
+                </a>
+                <a href="{% url 'admin_tips' %}" class="sidebar-link {% if admin_active_nav == 'tips' %}active{% endif %}">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Farming Tips</span>
+                </a>
+
+                <div class="nav-section-title">System & Tools</div>
+                <a href="{% url 'admin_weather' %}" class="sidebar-link {% if admin_active_nav == 'weather' %}active{% endif %}">
+                    <i class="fa-solid fa-cloud-sun-rain"></i>
+                    <span>Weather Status</span>
+                </a>
+                <a href="{% url 'admin_activity' %}" class="sidebar-link {% if admin_active_nav == 'activity' %}active{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Activity Log</span>
+                </a>
+                <a href="/admin/" target="_blank" class="sidebar-link">
+                    <i class="fa-solid fa-gear"></i>
+                    <span>Django Admin</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.75rem; margin-left: auto; width: auto;"></i>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'admin_logout' %}" class="sidebar-link" style="color: #F87171;">
+                    <i class="fa-solid fa-right-from-bracket" style="color: #F87171;"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- ==========================================
+             Admin Main Canvas
+             ========================================== -->
+        <div class="admin-canvas">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <div class="topbar-breadcrumb">
+                        <span>AgriConnect Admin</span>
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem;"></i>
+                        <strong>{% block breadcrumb %}Dashboard{% endblock %}</strong>
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+                    <a href="{% url 'home' %}" target="_blank" class="topbar-btn" title="View Public Website">
+                        <i class="fa-solid fa-globe"></i>
+                        <span>Live Site</span>
+                    </a>
+
+                    <a href="{% url 'admin_messages' %}" class="topbar-notification" title="Contact Inquiries">
+                        <i class="fa-regular fa-bell"></i>
+                        {% if admin_unread_messages_count > 0 %}
+                        <span class="notification-dot"></span>
+                        {% endif %}
+                    </a>
+
+                    <div class="admin-user-menu">
+                        <div class="admin-avatar">
+                            {{ request.user.username|make_list|first|upper }}
+                        </div>
+                        <div class="admin-user-info">
+                            <div class="admin-user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
+                            <div class="admin-user-role">
+                                {% if request.user.is_superuser %}Super Administrator{% else %}Staff Administrator{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Reusable Deletion Confirmation Modal -->
+    <div class="modal-backdrop" id="confirmModalBackdrop">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--danger); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    Confirm Action
+                </h3>
+            </div>
+            <div class="modal-body">
+                <p id="confirmModalText">Are you sure you want to delete this record? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-admin btn-admin-outline btn-admin-sm" id="confirmModalCancel">Cancel</button>
+                <form id="confirmModalForm" method="POST" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-admin btn-admin-danger btn-admin-sm">Yes, Delete Record</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin JavaScript -->
+    <script src="{% static 'js/admin.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

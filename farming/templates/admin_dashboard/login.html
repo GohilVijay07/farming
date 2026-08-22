@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | AgriConnect Management Portal</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Admin Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+</head>
+<body class="admin-login-body">
+
+    <!-- Flash Notification Alerts -->
+    {% if messages %}
+    <div class="admin-alerts-container" id="adminAlertsContainer">
+        {% for message in messages %}
+        <div class="admin-alert admin-alert-{{ message.tags|default:'info' }}">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button type="button" class="admin-alert-close">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="admin-login-card">
+        <div class="admin-login-header">
+            <div class="admin-login-brand">
+                <i class="fa-solid fa-seedling"></i>
+                Agri<span>Connect</span>
+            </div>
+            <br>
+            <span class="admin-login-badge"><i class="fa-solid fa-lock" style="margin-right: 4px;"></i> Secure Administrator Portal</span>
+            <h1 class="admin-login-title">Administrator Login</h1>
+            <p class="admin-login-desc">Sign in with your staff or superuser credentials to manage the platform.</p>
+        </div>
+
+        <form method="POST" action="{% url 'admin_login' %}">
+            {% csrf_token %}
+            {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+            {% endif %}
+
+            <div class="admin-form-group">
+                <label for="admin_username" class="admin-form-label">
+                    <i class="fa-solid fa-user" style="color: var(--primary); margin-right: 4px;"></i>
+                    Username or Email
+                </label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">
+                    {{ form.username.errors.0 }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="admin-form-group">
+                <label for="admin_password" class="admin-form-label">
+                    <i class="fa-solid fa-key" style="color: var(--primary); margin-right: 4px;"></i>
+                    Admin Password
+                </label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">
+                    {{ form.password.errors.0 }}
+                </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-admin btn-admin-primary" style="width: 100%; padding: 0.75rem; font-size: 0.95rem; margin-top: 0.5rem;">
+                <i class="fa-solid fa-shield-halved"></i>
+                Authenticate & Access Dashboard
+            </button>
+        </form>
+
+        <div class="admin-security-note">
+            <i class="fa-solid fa-circle-exclamation" style="font-size: 1.1rem; margin-top: 2px;"></i>
+            <div>
+                <strong>Restricted Area:</strong> This interface is exclusively for authorized system administrators. Normal farmers should log in via the <a href="{% url 'login' %}" style="color: #92400E; text-decoration: underline; font-weight: 700;">Farmer Login Portal</a>.
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-muted);">
+            <a href="{% url 'home' %}" style="color: var(--text-muted); text-decoration: none;">
+                <i class="fa-solid fa-arrow-left" style="margin-right: 4px;"></i> Back to AgriConnect Public Site
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin JavaScript -->
+    <script src="{% static 'js/admin.js' %}"></script>
+</body>
+</html>

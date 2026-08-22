@@ -1,0 +1,102 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Edit Crop: {{ crop.crop_name }} | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_crops' %}">Crops</a> &gt; {{ crop.crop_name }} &gt; Edit{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Edit Crop Record</h1>
+        <p class="admin-page-subtitle">Modifying crop specifications for <strong>{{ crop.crop_name }}</strong> (Owner: {{ crop.farmer.username }})</p>
+    </div>
+    <div>
+        <a href="{% url 'admin_crops' %}" class="btn-admin btn-admin-outline btn-admin-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to Crops
+        </a>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 800px;">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fa-solid fa-pen-to-square"></i>
+            Crop Details Form
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="crop_name" class="admin-form-label">Crop Name *</label>
+                    {{ form.crop_name }}
+                    {% if form.crop_name.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.crop_name.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="crop_farmer" class="admin-form-label">Farmer (Owner) *</label>
+                    {{ form.farmer }}
+                    {% if form.farmer.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.farmer.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="crop_type" class="admin-form-label">Crop Type *</label>
+                    {{ form.crop_type }}
+                    {% if form.crop_type.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.crop_type.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="crop_region" class="admin-form-label">Gujarat Region *</label>
+                    {{ form.region }}
+                    {% if form.region.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.region.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="season" class="admin-form-label">Growing Season *</label>
+                    {{ form.season }}
+                    {% if form.season.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.season.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="farm_area" class="admin-form-label">Farm Area (Acres) *</label>
+                    {{ form.farm_area }}
+                    {% if form.farm_area.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.farm_area.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="status" class="admin-form-label">Current Status *</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.status.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="planting_date" class="admin-form-label">Planting Date *</label>
+                    {{ form.planting_date }}
+                    {% if form.planting_date.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.planting_date.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="expected_harvest_date" class="admin-form-label">Expected Harvest Date *</label>
+                    {{ form.expected_harvest_date }}
+                    {% if form.expected_harvest_date.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.expected_harvest_date.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="notes" class="admin-form-label">Notes & Technical Recommendations</label>
+                {{ form.notes }}
+                {% if form.notes.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.notes.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <a href="{% url 'admin_crops' %}" class="btn-admin btn-admin-outline">Cancel</a>
+                <button type="submit" class="btn-admin btn-admin-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Update Crop
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

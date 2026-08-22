@@ -1,0 +1,257 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}Farmer Dashboard | AgriConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
+                Farmer Portal
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'my_crops' %}" class="sidebar-link {% if active_page == 'my_crops' %}active{% endif %}">
+                        <i class="fa-solid fa-wheat-awn"></i> My Crops
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_crop' %}" class="sidebar-link {% if active_page == 'add_crop' %}active{% endif %}">
+                        <i class="fa-solid fa-circle-plus"></i> Add Crop
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'farming_tips' %}" class="sidebar-link">
+                        <i class="fa-solid fa-lightbulb"></i> Farming Tips
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'weather' %}" class="sidebar-link">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Weather
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'profile' %}" class="sidebar-link {% if active_page == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-pen"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
+                <div class="user-role">{{ user.farmer_profile.district|default:"Gujarat Farmer" }}</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Dashboard Content Area -->
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Welcome, {{ user.farmer_profile.full_name|default:user.username }}!</h1>
+                <p style="margin-bottom: 0;">
+                    <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
+                    <strong style="color: var(--primary);">{{ user.farmer_profile.get_location_display|default:user.farmer_profile.district|default:"Gujarat, India" }}</strong>
+                    &bull; Live summary of your Gujarat farming operations.
+                </p>
+            </div>
+            <div>
+                <a href="{% url 'add_crop' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add New Crop
+                </a>
+            </div>
+        </div>
+
+        <!-- 4 Statistics Cards -->
+        <div class="stats-grid" style="margin-bottom: 2rem;">
+            <div class="stat-card">
+                <div class="stat-icon icon-green">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Total Crops</div>
+                    <div class="stat-value">{{ total_crops }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-amber">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Active Crops</div>
+                    <div class="stat-value">{{ active_crops }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-blue">
+                    <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Completed / Harvested</div>
+                    <div class="stat-value">{{ harvested_crops }}</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon icon-brown">
+                    <i class="fa-solid fa-chart-area"></i>
+                </div>
+                <div>
+                    <div class="stat-label">Total Farm Area</div>
+                    <div class="stat-value">{{ total_area|floatformat:2 }} <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted);">Acres</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Crops Section -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <h2 style="font-size: 1.35rem; color: var(--primary);">Recent Crop Plantings</h2>
+                    <p style="font-size: 0.88rem; margin-bottom: 0; color: var(--text-muted);">Your latest crop registrations and current lifecycle status.</p>
+                </div>
+                <a href="{% url 'my_crops' %}" class="btn btn-secondary btn-sm">
+                    View All Crops <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            {% if recent_crops %}
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Crop Name</th>
+                            <th>Crop Type</th>
+                            <th>Season</th>
+                            <th>Area (Acres)</th>
+                            <th>Planting Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crop in recent_crops %}
+                        <tr>
+                            <td>
+                                <strong>{{ crop.crop_name }}</strong>
+                            </td>
+                            <td>{{ crop.crop_type }}</td>
+                            <td>{{ crop.season }}</td>
+                            <td>{{ crop.farm_area }}</td>
+                            <td>{{ crop.planting_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if crop.status == 'Planted' %}
+                                <span class="badge badge-planted">Planted</span>
+                                {% elif crop.status == 'Growing' %}
+                                <span class="badge badge-growing">Growing</span>
+                                {% elif crop.status == 'Ready to Harvest' %}
+                                <span class="badge badge-ready">Ready to Harvest</span>
+                                {% else %}
+                                <span class="badge badge-harvested">Harvested</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <a href="{% url 'edit_crop' crop.id %}" class="btn btn-outline btn-sm" title="Edit Crop">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-danger btn-sm btn-trigger-delete" data-url="{% url 'delete_crop' crop.id %}" data-name="{{ crop.crop_name }}" title="Delete Crop">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 3rem 1rem;">
+                <i class="fa-solid fa-wheat-awn" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                <h3 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 0.5rem;">No Crops Added Yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    You haven't recorded any crops on your farm profile yet. Start by adding your first crop to track growth and harvest schedules.
+                </p>
+                <a href="{% url 'add_crop' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add Your First Crop
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Help & Weather Row -->
+        <div class="grid-2">
+            <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white);">
+                <h3 style="color: var(--white); font-size: 1.25rem; margin-bottom: 0.5rem;">
+                    <i class="fa-solid fa-cloud-sun" style="color: var(--accent); margin-right: 6px;"></i> Local Weather Snapshot
+                </h3>
+                <p style="color: var(--light-green); font-size: 0.88rem; margin-bottom: 1.15rem;">
+                    Stay updated with local atmospheric conditions before scheduling your field watering or fertilizer spray.
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.12); padding: 0.9rem 1.15rem; border-radius: var(--radius-md); margin-bottom: 1.15rem;">
+                    <div>
+                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--white);">26°C</div>
+                        <div style="font-size: 0.82rem; color: var(--light-green);">Partly Sunny • Good Spray Window</div>
+                    </div>
+                    <i class="fa-solid fa-sun" style="font-size: 2.25rem; color: var(--gold);"></i>
+                </div>
+                <a href="{% url 'weather' %}" class="btn btn-secondary btn-sm" style="width: 100%;">
+                    Open Full Weather Advisory <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="card">
+                <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--primary);">
+                    <i class="fa-solid fa-lightbulb" style="color: var(--primary-light); margin-right: 6px;"></i> Quick Farming Tip
+                </h3>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.15rem;">
+                    Rotate cereal grain crops with nitrogen-fixing pulses to naturally replenish soil organic carbon and curb pest lifecycles.
+                </p>
+                <div style="border-left: 3px solid var(--primary-light); padding-left: 0.85rem; margin-bottom: 1.15rem;">
+                    <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary);">Micro-Irrigation Tip</div>
+                    <div style="font-size: 0.82rem; color: var(--text-muted);">Watering at early morning cuts soil evaporation losses by up to 35%.</div>
+                </div>
+                <a href="{% url 'farming_tips' %}" class="btn btn-outline btn-sm" style="width: 100%;">
+                    Browse All Agronomy Tips <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Reusable Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; color: var(--primary); margin-bottom: 0.5rem;">Delete Crop Record?</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">
+            Are you sure you want to delete <strong id="modalCropName" style="color: var(--primary);">this crop</strong>? This action cannot be undone.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Crop</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

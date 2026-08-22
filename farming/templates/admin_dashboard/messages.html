@@ -1,0 +1,150 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Contact Inquiries | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}Contact Inquiries{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Visitor Contact Inquiries</h1>
+        <p class="admin-page-subtitle">Manage customer support tickets, farmer questions, and technical feedback.</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+        <span class="status-pill {% if unread_count > 0 %}pill-red{% else %}pill-green{% endif %}" style="font-size: 0.85rem; padding: 6px 14px;">
+            <i class="fa-solid fa-envelope"></i> {{ unread_count }} Unread Message{{ unread_count|pluralize }}
+        </span>
+    </div>
+</div>
+
+<!-- Filter Toolbar -->
+<div class="filter-toolbar">
+    <form method="GET" action="{% url 'admin_messages' %}" class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, email, subject, content..." data-table-search="messagesTable">
+        {% if status_filter and status_filter != 'all' %}
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        {% endif %}
+    </form>
+
+    <div class="filter-pills">
+        <a href="{% url 'admin_messages' %}?status=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'all' or not status_filter %}active{% endif %}">
+            All Messages ({{ total_count }})
+        </a>
+        <a href="{% url 'admin_messages' %}?status=unread{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'unread' %}active{% endif %}">
+            <i class="fa-solid fa-circle-dot" style="color: var(--danger);"></i> Unread ({{ unread_count }})
+        </a>
+        <a href="{% url 'admin_messages' %}?status=read{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'read' %}active{% endif %}">
+            <i class="fa-solid fa-envelope-open-text"></i> Read ({{ read_count }})
+        </a>
+    </div>
+</div>
+
+<!-- Messages Table Card -->
+<div class="admin-card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table" id="messagesTable">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Sender Name</th>
+                        <th>Email Address</th>
+                        <th>Subject & Preview</th>
+                        <th>Date Received</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in messages_list %}
+                    <tr class="{% if not m.is_read %}highlight-unread{% endif %}">
+                        <td style="width: 100px;">
+                            {% if not m.is_read %}
+                            <span class="status-pill pill-red">
+                                <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> Unread
+                            </span>
+                            {% else %}
+                            <span class="status-pill pill-gray">Read</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-weight: 600;">
+                                <a href="{% url 'admin_message_detail' m.id %}">{{ m.name }}</a>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:{{ m.email }}">{{ m.email }}</a>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text);">{{ m.subject }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ m.message|truncatechars:65 }}</div>
+                        </td>
+                        <td style="white-space: nowrap; font-size: 0.8rem; color: var(--text-muted);">
+                            {{ m.created_at|date:"d M Y, h:i A" }}
+                        </td>
+                        <td style="text-align: right;">
+                            <div class="table-actions" style="justify-content: flex-end;">
+                                <a href="{% url 'admin_message_detail' m.id %}" class="btn-icon" title="View Message">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <a href="{% url 'admin_message_toggle_read' m.id %}" class="btn-icon" title="{% if m.is_read %}Mark as Unread{% else %}Mark as Read{% endif %}">
+                                    <i class="fa-solid {% if m.is_read %}fa-envelope{% else %}fa-envelope-open-text{% endif %}"></i>
+                                </a>
+                                <button type="button" class="btn-icon icon-danger" title="Delete Message"
+                                        onclick="openDeleteConfirmModal('{% url 'admin_message_delete' m.id %}', 'Delete message from {{ m.name }} ({{ m.subject }})?');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-envelope-circle-check" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+                            No contact messages found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if messages_list.paginator.num_pages > 1 %}
+<div class="admin-pagination">
+    <div class="pagination-info">
+        Showing page {{ messages_list.number }} of {{ messages_list.paginator.num_pages }} ({{ messages_list.paginator.count }} total messages)
+    </div>
+    <div class="pagination-controls">
+        {% if messages_list.has_previous %}
+        <a href="?page={{ messages_list.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for p in messages_list.paginator.page_range %}
+            {% if p == messages_list.number %}
+            <span class="page-btn active">{{ p }}</span>
+            {% elif p >= messages_list.number|add:"-2" and p <= messages_list.number|add:"2" %}
+            <a href="?page={{ p }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if messages_list.has_next %}
+        <a href="?page={{ messages_list.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

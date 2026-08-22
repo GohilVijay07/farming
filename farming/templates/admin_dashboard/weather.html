@@ -1,0 +1,116 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Weather Advisory Module Status | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}Weather Module Status{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Weather Advisory System Diagnostics</h1>
+        <p class="admin-page-subtitle">Inspect weather API health, forecast simulation engine, and agricultural advisory generation.</p>
+    </div>
+</div>
+
+<!-- API Health Status Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-content">
+            <span class="stat-label">Weather System State</span>
+            <span class="stat-value" style="font-size: 1.25rem; color: var(--success);">
+                <i class="fa-solid fa-circle-check"></i> Active
+            </span>
+            <span class="stat-subtext">{{ api_status_label }}</span>
+        </div>
+        <div class="stat-icon icon-green">
+            <i class="fa-solid fa-cloud-sun-rain"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-content">
+            <span class="stat-label">API Key Configuration</span>
+            <span class="stat-value" style="font-size: 1.25rem;">
+                {% if weather_api_configured %}
+                <span style="color: var(--success);"><i class="fa-solid fa-shield-check"></i> Configured (.env)</span>
+                {% else %}
+                <span style="color: #D97706;"><i class="fa-solid fa-microchip"></i> Simulation Mode</span>
+                {% endif %}
+            </span>
+            <span class="stat-subtext">Security: Keys protected via .env</span>
+        </div>
+        <div class="stat-icon {% if weather_api_configured %}icon-green{% else %}icon-amber{% endif %}">
+            <i class="fa-solid fa-key"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-content">
+            <span class="stat-label">Last Health Ping</span>
+            <span class="stat-value" style="font-size: 1.25rem;">
+                {{ last_health_check|date:"H:i:s" }} <span style="font-size: 0.85rem; color: var(--text-muted);">UTC</span>
+            </span>
+            <span class="stat-subtext">Automated Heartbeat OK</span>
+        </div>
+        <div class="stat-icon icon-blue">
+            <i class="fa-solid fa-heart-pulse"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Module Architecture and Information -->
+<div class="dashboard-sections-grid">
+    <div class="col-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-circle-info"></i>
+                    Module Capabilities
+                </div>
+            </div>
+            <div class="card-body">
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
+                    <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--success); margin-top: 3px;"></i>
+                        <div><strong>5-Day Weather Forecasts:</strong> High/low temperatures, precipitation chances, and atmospheric pressure.</div>
+                    </li>
+                    <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--success); margin-top: 3px;"></i>
+                        <div><strong>Smart Irrigation Advisories:</strong> Dynamic recommendations based on rainfall forecasts.</div>
+                    </li>
+                    <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--success); margin-top: 3px;"></i>
+                        <div><strong>Pest & Disease Warnings:</strong> High humidity alerts for fungal pathogen prevention.</div>
+                    </li>
+                    <li style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                        <i class="fa-solid fa-circle-check" style="color: var(--success); margin-top: 3px;"></i>
+                        <div><strong>Interactive City Search:</strong> Farmers can query weather for any regional district.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="admin-card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fa-solid fa-magnifying-glass-location"></i>
+                    Public Weather Lookup Simulation
+                </div>
+            </div>
+            <div class="card-body">
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                    Test the farmer-facing weather forecast and advisory generator:
+                </p>
+                <form action="{% url 'weather' %}" method="GET" target="_blank" style="display: flex; gap: 0.75rem;">
+                    <input type="text" name="city" placeholder="e.g., Ahmedabad, Punjab, Green Valley" class="admin-form-control" required>
+                    <button type="submit" class="btn-admin btn-admin-primary" style="white-space: nowrap;">
+                        <i class="fa-solid fa-cloud-sun"></i> Test Lookup &rarr;
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

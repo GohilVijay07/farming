@@ -1,0 +1,89 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}Gujarat Crops Catalog & Agronomy Guide | AgriConnect{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); padding: 3.5rem 0 2.75rem; text-align: center;">
+    <div class="container">
+        <span class="section-tag" style="background: rgba(255, 255, 255, 0.2); color: var(--white); margin-bottom: 0.85rem; border: none;">Gujarat Agronomy Guide</span>
+        <h1 style="color: var(--white); font-size: 2.6rem; margin-bottom: 0.65rem;">Major Agricultural Crops of Gujarat</h1>
+        <p style="color: var(--light-green); max-width: 680px; margin: 0 auto; font-size: 1.05rem;">
+            Explore cultivation guidelines, agro-climatic regions, seasons, soil requirements, and water management across Gujarat.
+        </p>
+    </div>
+</div>
+
+<section class="section">
+    <div class="container">
+        <!-- Interactive Real-time Search Box -->
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input
+                type="text"
+                id="cropSearchInput"
+                class="search-input"
+                placeholder="Search Gujarat crops by name (e.g. Cotton, Groundnut, Cumin), region, season, or soil..."
+                aria-label="Search crops"
+                autocomplete="off"
+            >
+        </div>
+
+        <!-- Crops Grid (4 columns) -->
+        <div class="crop-grid" id="cropsGrid">
+            {% for crop in crops %}
+            <div
+                class="crop-card crop-item-card"
+                data-name="{{ crop.name }}"
+                data-type="{{ crop.type }}"
+                data-season="{{ crop.season }}"
+                data-soil="{{ crop.soil }}"
+            >
+                <div class="crop-card-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+                    <i class="fa-solid {{ crop.icon }} crop-icon-large"></i>
+                    <span class="crop-season-badge">{{ crop.season }}</span>
+                </div>
+                <div class="crop-card-body">
+                    <h3 class="crop-card-title">{{ crop.name }}</h3>
+                    <div class="crop-card-type">{{ crop.type }}</div>
+                    {% if crop.region %}
+                    <div style="font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-bottom: 0.65rem;">
+                        <i class="fa-solid fa-location-dot" style="margin-right: 4px;"></i> {{ crop.region }}
+                    </div>
+                    {% endif %}
+
+                    <ul class="crop-specs">
+                        <li>
+                            <i class="fa-solid fa-droplet"></i>
+                            <div><strong>Water:</strong> {{ crop.water }}</div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-layer-group"></i>
+                            <div><strong>Soil Type:</strong> {{ crop.soil }}</div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-clock"></i>
+                            <div><strong>Duration:</strong> {{ crop.duration }}</div>
+                        </li>
+                    </ul>
+
+                    <p class="crop-description">
+                        {{ crop.description }}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- No Results Fallback Message -->
+        <div id="noCropResults" style="display: none; text-align: center; padding: 4rem 1rem;">
+            <i class="fa-solid fa-seedling" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+            <h3 style="color: var(--primary); margin-bottom: 0.5rem;">No Matching Crops Found</h3>
+            <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 1.5rem;">
+                We couldn't find any crops matching your search query. Try searching with a different term like "Cotton", "Groundnut", "Saurashtra", "Cumin", or "Bhalia".
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,225 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}My Crops Inventory | AgriConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
+                Farmer Portal
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'my_crops' %}" class="sidebar-link {% if active_page == 'my_crops' %}active{% endif %}">
+                        <i class="fa-solid fa-wheat-awn"></i> My Crops
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_crop' %}" class="sidebar-link {% if active_page == 'add_crop' %}active{% endif %}">
+                        <i class="fa-solid fa-circle-plus"></i> Add Crop
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'farming_tips' %}" class="sidebar-link">
+                        <i class="fa-solid fa-lightbulb"></i> Farming Tips
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'weather' %}" class="sidebar-link">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Weather
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'profile' %}" class="sidebar-link {% if active_page == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-pen"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
+                <div class="user-role">{{ user.farmer_profile.farm_location|default:"Farmer" }}</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>My Crops Inventory</h1>
+                <p style="margin-bottom: 0;">Manage your active farm plantings, seasons, and harvest milestones.</p>
+            </div>
+            <div>
+                <a href="{% url 'add_crop' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add New Crop
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card" style="padding: 1.15rem 1.35rem; margin-bottom: 1.75rem;">
+            <form method="get" action="{% url 'my_crops' %}" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary);">
+                    <i class="fa-solid fa-filter" style="color: var(--primary-light); margin-right: 4px;"></i> Filter By:
+                </div>
+
+                <div style="min-width: 180px;">
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="Planted" {% if status_filter == 'Planted' %}selected{% endif %}>Planted</option>
+                        <option value="Growing" {% if status_filter == 'Growing' %}selected{% endif %}>Growing</option>
+                        <option value="Ready to Harvest" {% if status_filter == 'Ready to Harvest' %}selected{% endif %}>Ready to Harvest</option>
+                        <option value="Harvested" {% if status_filter == 'Harvested' %}selected{% endif %}>Harvested</option>
+                    </select>
+                </div>
+
+                <div style="min-width: 200px;">
+                    <select name="season" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Seasons</option>
+                        <option value="Kharif (Monsoon)" {% if season_filter == 'Kharif (Monsoon)' %}selected{% endif %}>Kharif (Monsoon)</option>
+                        <option value="Rabi (Winter)" {% if season_filter == 'Rabi (Winter)' %}selected{% endif %}>Rabi (Winter)</option>
+                        <option value="Zaid (Summer)" {% if season_filter == 'Zaid (Summer)' %}selected{% endif %}>Zaid (Summer)</option>
+                        <option value="Year-Round" {% if season_filter == 'Year-Round' %}selected{% endif %}>Year-Round</option>
+                    </select>
+                </div>
+
+                {% if status_filter or season_filter %}
+                <a href="{% url 'my_crops' %}" class="btn btn-outline btn-sm">
+                    <i class="fa-solid fa-xmark"></i> Clear Filters
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Crops Data Table -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+            {% if crops %}
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Crop</th>
+                            <th>Season</th>
+                            <th>Area</th>
+                            <th>Planting Date</th>
+                            <th>Expected Harvest</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crop in crops %}
+                        <tr>
+                            <td>
+                                <strong style="font-size: 1rem; color: var(--primary);">{{ crop.crop_name }}</strong>
+                                <div style="font-size: 0.8rem; color: var(--primary-light); font-weight: 500;">{{ crop.crop_type }}</div>
+                                {% if crop.notes %}
+                                <div style="font-size: 0.75rem; color: var(--text-muted); max-width: 220px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;" title="{{ crop.notes }}">
+                                    <i class="fa-regular fa-note-sticky"></i> {{ crop.notes }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span style="font-size: 0.88rem; font-weight: 500;">{{ crop.season }}</span>
+                            </td>
+                            <td>
+                                <strong>{{ crop.farm_area }}</strong> <span style="font-size: 0.82rem; color: var(--text-muted);">Acres</span>
+                            </td>
+                            <td>
+                                <div>{{ crop.planting_date|date:"M d, Y" }}</div>
+                            </td>
+                            <td>
+                                <div>{{ crop.expected_harvest_date|date:"M d, Y" }}</div>
+                            </td>
+                            <td>
+                                {% if crop.status == 'Planted' %}
+                                <span class="badge badge-planted">Planted</span>
+                                {% elif crop.status == 'Growing' %}
+                                <span class="badge badge-growing">Growing</span>
+                                {% elif crop.status == 'Ready to Harvest' %}
+                                <span class="badge badge-ready">Ready to Harvest</span>
+                                {% else %}
+                                <span class="badge badge-harvested">Harvested</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <a href="{% url 'edit_crop' crop.id %}" class="btn btn-outline btn-sm" title="Edit Crop Information">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </a>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm btn-trigger-delete"
+                                        data-url="{% url 'delete_crop' crop.id %}"
+                                        data-name="{{ crop.crop_name }}"
+                                        title="Delete Crop"
+                                    >
+                                        <i class="fa-solid fa-trash-can"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="text-align: center; padding: 4rem 1.5rem;">
+                <i class="fa-solid fa-wheat-awn" style="font-size: 3.5rem; color: var(--text-light); margin-bottom: 1.25rem;"></i>
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">No Crops Found</h3>
+                <p style="color: var(--text-muted); max-width: 420px; margin: 0 auto 1.75rem;">
+                    {% if status_filter or season_filter %}
+                    No crops match your current filter selection. Try clearing the filters above.
+                    {% else %}
+                    You haven't recorded any crops in your inventory yet. Add your first crop record to begin tracking.
+                    {% endif %}
+                </p>
+                {% if status_filter or season_filter %}
+                <a href="{% url 'my_crops' %}" class="btn btn-outline">Clear Filter</a>
+                {% else %}
+                <a href="{% url 'add_crop' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i> Add Crop Now
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<!-- Reusable Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <div class="modal-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 style="font-size: 1.35rem; color: var(--primary); margin-bottom: 0.5rem;">Delete Crop Record?</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">
+            Are you sure you want to delete <strong id="modalCropName" style="color: var(--primary);">this crop</strong>? This action cannot be undone.
+        </p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Crop</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

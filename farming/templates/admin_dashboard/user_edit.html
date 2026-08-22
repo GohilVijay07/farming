@@ -1,0 +1,100 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Edit User: {{ target_user.username }} | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_users' %}">Users</a> &gt; <a href="{% url 'admin_user_detail' target_user.id %}">{{ target_user.username }}</a> &gt; Edit{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Edit User Credentials & Profile</h1>
+        <p class="admin-page-subtitle">Modifying account data for <strong>{{ target_user.username }}</strong></p>
+    </div>
+    <div>
+        <a href="{% url 'admin_user_detail' target_user.id %}" class="btn-admin btn-admin-outline btn-admin-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to User
+        </a>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 800px;">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fa-solid fa-user-pen"></i>
+            User Profile Form
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="user_full_name" class="admin-form-label">Full Name *</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.full_name.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="user_username" class="admin-form-label">Username *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.username.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="user_email" class="admin-form-label">Email Address *</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="user_phone" class="admin-form-label">Phone Number</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.phone.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="admin-form-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1rem;">
+                <div class="admin-form-group">
+                    <label for="user_district" class="admin-form-label">Gujarat District *</label>
+                    {{ form.district }}
+                    {% if form.district.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.district.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="user_taluka" class="admin-form-label">Taluka / Tehsil</label>
+                    {{ form.taluka }}
+                    {% if form.taluka.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.taluka.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="admin-form-group" style="margin-top: 1rem;">
+                <label for="user_farm_location" class="admin-form-label">Village / Farm Location</label>
+                {{ form.farm_location }}
+                {% if form.farm_location.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.farm_location.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin: 1.5rem 0; display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--text);">Account Permissions & Status</div>
+                
+                <label class="admin-checkbox-label">
+                    {{ form.is_active }}
+                    <span><strong>Active Account / Email Verified</strong> (Allows farmer to log in)</span>
+                </label>
+                
+                <label class="admin-checkbox-label">
+                    {{ form.is_staff }}
+                    <span><strong>Staff Administrator</strong> (Grants access to this Admin Dashboard)</span>
+                </label>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <a href="{% url 'admin_user_detail' target_user.id %}" class="btn-admin btn-admin-outline">Cancel</a>
+                <button type="submit" class="btn-admin btn-admin-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save User Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

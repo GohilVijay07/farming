@@ -1,0 +1,179 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}Farmer Profile Settings | AgriConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
+                Farmer Portal
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="sidebar-link">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'my_crops' %}" class="sidebar-link">
+                        <i class="fa-solid fa-wheat-awn"></i> My Crops
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_crop' %}" class="sidebar-link">
+                        <i class="fa-solid fa-circle-plus"></i> Add Crop
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'farming_tips' %}" class="sidebar-link">
+                        <i class="fa-solid fa-lightbulb"></i> Farming Tips
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'weather' %}" class="sidebar-link">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Weather
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'profile' %}" class="sidebar-link active">
+                        <i class="fa-solid fa-user-pen"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
+                <div class="user-role">{{ user.farmer_profile.farm_location|default:"Farmer" }}</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Farmer Profile Settings</h1>
+                <p style="margin-bottom: 0;">View and update your personal contact info and farm location.</p>
+            </div>
+        </div>
+
+        <div class="grid-2" style="align-items: flex-start; max-width: 950px;">
+            <!-- Profile Overview Card -->
+            <div class="card" style="text-align: center; padding: 2.25rem 1.75rem;">
+                <div class="user-avatar" style="width: 76px; height: 76px; font-size: 2rem; font-weight: 800; margin: 0 auto 1rem;">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <h2 style="font-size: 1.45rem; color: var(--primary); margin-bottom: 0.2rem;">
+                    {{ profile.full_name|default:user.username }}
+                </h2>
+                <div style="color: var(--primary-light); font-weight: 600; font-size: 0.9rem; margin-bottom: 1.25rem;">
+                    @{{ user.username }}
+                </div>
+
+                <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.15rem 0; margin-bottom: 1.25rem; text-align: left; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-envelope" style="color: var(--primary-light); width: 18px;"></i> Email:</span>
+                        <strong style="color: var(--text);">{{ user.email }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="color: var(--primary-light); width: 18px;"></i> Phone:</span>
+                        <strong style="color: var(--text);">{{ profile.phone|default:"Not specified" }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary-light); width: 18px;"></i> Location:</span>
+                        <strong style="color: var(--text);">{{ profile.get_location_display|default:profile.district|default:"Gujarat, India" }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-calendar-check" style="color: var(--primary-light); width: 18px;"></i> Joined:</span>
+                        <strong style="color: var(--text);">{{ user.date_joined|date:"d-m-Y" }}</strong>
+                    </div>
+                </div>
+
+                <div style="background: var(--light-green); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.82rem; color: var(--primary);">
+                    <i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i> Gujarat Farmer Account verified & encrypted.
+                </div>
+            </div>
+
+            <!-- Edit Profile Form Card -->
+            <div class="card" style="padding: 2.25rem 2rem;">
+                <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 1.25rem;">
+                    <i class="fa-solid fa-user-pen" style="color: var(--primary-light); margin-right: 6px;"></i> Edit Gujarat Profile
+                </h3>
+
+                <form method="post" action="{% url 'profile' %}">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="profile_full_name" class="form-label">Full Name <span style="color: #DC2626;">*</span></label>
+                        {{ form.full_name }}
+                        {% if form.full_name.errors %}
+                        <div class="form-error">{{ form.full_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="profile_email" class="form-label">Email Address <span style="color: #DC2626;">*</span></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="form-error">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile_phone" class="form-label">Phone Number <span style="color: #DC2626;">*</span></label>
+                            {{ form.phone }}
+                            {% if form.phone.errors %}
+                            <div class="form-error">{{ form.phone.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="profile_district" class="form-label">Gujarat District <span style="color: #DC2626;">*</span></label>
+                            {{ form.district }}
+                            {% if form.district.errors %}
+                            <div class="form-error">{{ form.district.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile_taluka" class="form-label">Taluka / Tehsil <span style="color: #DC2626;">*</span></label>
+                            {{ form.taluka }}
+                            {% if form.taluka.errors %}
+                            <div class="form-error">{{ form.taluka.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile_farm_location" class="form-label">Village / Farm Location <span style="color: #DC2626;">*</span></label>
+                        {{ form.farm_location }}
+                        {% if form.farm_location.errors %}
+                        <div class="form-error">{{ form.farm_location.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.75rem;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Gujarat Profile Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

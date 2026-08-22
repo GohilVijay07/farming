@@ -1,0 +1,167 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Crop Management | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}Crop Management{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Agricultural Crop Management</h1>
+        <p class="admin-page-subtitle">Oversee all registered crops, growth stages, acreage distributions, and planting cycles.</p>
+    </div>
+    <div>
+        <span class="status-pill pill-green" style="font-size: 0.85rem; padding: 6px 14px;">
+            <i class="fa-solid fa-seedling"></i> {{ count_all }} Total Crops Listed
+        </span>
+    </div>
+</div>
+
+<!-- Filter Toolbar -->
+<div class="filter-toolbar">
+    <form method="GET" action="{% url 'admin_crops' %}" class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search crop name, farmer username, crop type..." data-table-search="cropsTable">
+        {% if status_filter and status_filter != 'all' %}
+        <input type="hidden" name="status" value="{{ status_filter }}">
+        {% endif %}
+    </form>
+
+    <div class="filter-pills">
+        <a href="{% url 'admin_crops' %}?status=all{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'all' or not status_filter %}active{% endif %}">
+            All ({{ count_all }})
+        </a>
+        <a href="{% url 'admin_crops' %}?status=Planted{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'Planted' %}active{% endif %}">
+            <i class="fa-solid fa-seedling"></i> Planted ({{ count_planted }})
+        </a>
+        <a href="{% url 'admin_crops' %}?status=Growing{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'Growing' %}active{% endif %}">
+            <i class="fa-solid fa-leaf"></i> Growing ({{ count_growing }})
+        </a>
+        <a href="{% url 'admin_crops' %}?status=Ready to Harvest{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'Ready to Harvest' %}active{% endif %}">
+            <i class="fa-solid fa-wheat-awn"></i> Ready ({{ count_ready }})
+        </a>
+        <a href="{% url 'admin_crops' %}?status=Harvested{% if search_query %}&q={{ search_query }}{% endif %}" 
+           class="filter-pill {% if status_filter == 'Harvested' %}active{% endif %}">
+            <i class="fa-solid fa-box-archive"></i> Harvested ({{ count_harvested }})
+        </a>
+    </div>
+</div>
+
+<!-- Crops Table Card -->
+<div class="admin-card">
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table" id="cropsTable">
+                <thead>
+                    <tr>
+                        <th>Crop</th>
+                        <th>Farmer</th>
+                        <th>Crop Type</th>
+                        <th>Season</th>
+                        <th>Farm Area</th>
+                        <th>Planting Date</th>
+                        <th>Expected Harvest</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in crops %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text);">
+                                {{ c.crop_name }}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 500;">
+                                <a href="{% url 'admin_user_detail' c.farmer.id %}">
+                                    {{ c.farmer.farmer_profile.full_name|default:c.farmer.username }}
+                                </a>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">@{{ c.farmer.username }}</div>
+                        </td>
+                        <td>{{ c.crop_type }}</td>
+                        <td>
+                            <span class="status-pill pill-gray" style="font-size: 0.75rem;">{{ c.season }}</span>
+                        </td>
+                        <td><strong>{{ c.farm_area }}</strong> Acres</td>
+                        <td style="font-size: 0.8rem; color: var(--text-muted);">{{ c.planting_date|date:"d M Y" }}</td>
+                        <td style="font-size: 0.8rem; color: var(--text-muted);">{{ c.expected_harvest_date|date:"d M Y" }}</td>
+                        <td>
+                            {% if c.status == 'Growing' %}
+                            <span class="status-pill pill-green"><i class="fa-solid fa-leaf"></i> Growing</span>
+                            {% elif c.status == 'Planted' %}
+                            <span class="status-pill pill-blue"><i class="fa-solid fa-seedling"></i> Planted</span>
+                            {% elif c.status == 'Ready to Harvest' %}
+                            <span class="status-pill pill-amber"><i class="fa-solid fa-wheat-awn"></i> Ready</span>
+                            {% else %}
+                            <span class="status-pill pill-purple"><i class="fa-solid fa-box"></i> Harvested</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.78rem; color: var(--text-muted);">{{ c.created_at|date:"d M Y" }}</td>
+                        <td style="text-align: right;">
+                            <div class="table-actions" style="justify-content: flex-end;">
+                                <a href="{% url 'admin_crop_edit' c.id %}" class="btn-icon" title="Edit Crop">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <button type="button" class="btn-icon icon-danger" title="Delete Crop"
+                                        onclick="openDeleteConfirmModal('{% url 'admin_crop_delete' c.id %}', 'Delete crop {{ c.crop_name }} belonging to {{ c.farmer.username }}?');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-wheat-awn-circle-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>
+                            No crop records found matching your filters.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if crops.paginator.num_pages > 1 %}
+<div class="admin-pagination">
+    <div class="pagination-info">
+        Showing page {{ crops.number }} of {{ crops.paginator.num_pages }} ({{ crops.paginator.count }} total crops)
+    </div>
+    <div class="pagination-controls">
+        {% if crops.has_previous %}
+        <a href="?page={{ crops.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for p in crops.paginator.page_range %}
+            {% if p == crops.number %}
+            <span class="page-btn active">{{ p }}</span>
+            {% elif p >= crops.number|add:"-2" and p <= crops.number|add:"2" %}
+            <a href="?page={{ p }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if crops.has_next %}
+        <a href="?page={{ crops.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

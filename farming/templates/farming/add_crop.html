@@ -1,0 +1,172 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}Add New Crop | AgriConnect{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div>
+            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
+                Farmer Portal
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'dashboard' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'my_crops' %}" class="sidebar-link {% if active_page == 'my_crops' %}active{% endif %}">
+                        <i class="fa-solid fa-wheat-awn"></i> My Crops
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'add_crop' %}" class="sidebar-link {% if active_page == 'add_crop' %}active{% endif %}">
+                        <i class="fa-solid fa-circle-plus"></i> Add Crop
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'farming_tips' %}" class="sidebar-link">
+                        <i class="fa-solid fa-lightbulb"></i> Farming Tips
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'weather' %}" class="sidebar-link">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Weather
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'profile' %}" class="sidebar-link {% if active_page == 'profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-pen"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ user.username|slice:":1"|upper }}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
+                <div class="user-role">{{ user.farmer_profile.farm_location|default:"Farmer" }}</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section class="dashboard-content">
+        <div class="dashboard-header">
+            <div>
+                <h1>Add New Crop</h1>
+                <p style="margin-bottom: 0;">Record a newly planted crop variety, cultivated land acreage, and target harvest date.</p>
+            </div>
+            <div>
+                <a href="{% url 'my_crops' %}" class="btn btn-outline">
+                    <i class="fa-solid fa-arrow-left"></i> Back to My Crops
+                </a>
+            </div>
+        </div>
+
+        <div class="card" style="max-width: 800px; padding: 2.25rem 2rem;">
+            <form method="post" action="{% url 'add_crop' %}">
+                {% csrf_token %}
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="crop_name" class="form-label">Crop Name <span style="color: #DC2626;">*</span></label>
+                        {{ form.crop_name }}
+                        {% if form.crop_name.errors %}
+                        <div class="form-error">{{ form.crop_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="crop_type" class="form-label">Crop Type / Category <span style="color: #DC2626;">*</span></label>
+                        {{ form.crop_type }}
+                        {% if form.crop_type.errors %}
+                        <div class="form-error">{{ form.crop_type.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="crop_region" class="form-label">Gujarat Region <span style="color: #DC2626;">*</span></label>
+                        {{ form.region }}
+                        {% if form.region.errors %}
+                        <div class="form-error">{{ form.region.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="season" class="form-label">Growing Season <span style="color: #DC2626;">*</span></label>
+                        {{ form.season }}
+                        {% if form.season.errors %}
+                        <div class="form-error">{{ form.season.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="farm_area" class="form-label">Area (Acres) <span style="color: #DC2626;">*</span></label>
+                        {{ form.farm_area }}
+                        {% if form.farm_area.errors %}
+                        <div class="form-error">{{ form.farm_area.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label for="planting_date" class="form-label">Planting / Sowing Date <span style="color: #DC2626;">*</span></label>
+                        {{ form.planting_date }}
+                        {% if form.planting_date.errors %}
+                        <div class="form-error">{{ form.planting_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="expected_harvest_date" class="form-label">Expected Harvest Date <span style="color: #DC2626;">*</span></label>
+                        {{ form.expected_harvest_date }}
+                        {% if form.expected_harvest_date.errors %}
+                        <div class="form-error">{{ form.expected_harvest_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="status" class="form-label">Initial Lifecycle Status <span style="color: #DC2626;">*</span></label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <div class="form-error">{{ form.status.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="notes" class="form-label">Notes, Seed Variety or Agronomic Instructions</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <div class="form-error">{{ form.notes.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.75rem;">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Crop Record
+                    </button>
+                    <a href="{% url 'my_crops' %}" class="btn btn-secondary btn-lg">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>
+{% endblock %}

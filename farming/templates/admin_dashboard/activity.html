@@ -1,0 +1,122 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Activity Audit Logs | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}System Activity Log{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">System Audit & Activity Timeline</h1>
+        <p class="admin-page-subtitle">Track administrative operations, farmer signups, verification events, crop updates, and support inquiries.</p>
+    </div>
+</div>
+
+<!-- Filter Toolbar -->
+<div class="filter-toolbar">
+    <div class="filter-pills">
+        <a href="{% url 'admin_activity' %}?action=all" class="filter-pill {% if action_filter == 'all' or not action_filter %}active{% endif %}">
+            All Actions ({{ activities.paginator.count }})
+        </a>
+        {% for act_name in distinct_actions %}
+        <a href="{% url 'admin_activity' %}?action={{ act_name }}" class="filter-pill {% if action_filter == act_name %}active{% endif %}">
+            {{ act_name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Activity Log Table Card -->
+<div class="admin-card">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            Event Audit History
+        </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">Icon</th>
+                        <th>Event Action</th>
+                        <th>Associated User</th>
+                        <th>Event Details</th>
+                        <th>Date & Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for act in activities %}
+                    <tr>
+                        <td style="text-align: center;">
+                            <div class="activity-icon-bullet" style="margin: 0 auto; width: 30px; height: 30px; font-size: 0.8rem;">
+                                <i class="fa-solid {{ act.icon|default:'fa-circle-info' }}"></i>
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="color: var(--text);">{{ act.action }}</strong>
+                        </td>
+                        <td>
+                            {% if act.user %}
+                            <a href="{% url 'admin_user_detail' act.user.id %}" style="font-weight: 500;">
+                                {{ act.user.username }}
+                            </a>
+                            {% else %}
+                            <span style="color: var(--text-muted);">System / Visitor</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="font-size: 0.85rem; color: var(--text);">{{ act.details }}</div>
+                        </td>
+                        <td style="white-space: nowrap; font-size: 0.8rem; color: var(--text-muted);">
+                            {{ act.created_at|date:"d M Y, h:i:s A" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 3rem;">
+                            No activity events recorded for this filter.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if activities.paginator.num_pages > 1 %}
+<div class="admin-pagination">
+    <div class="pagination-info">
+        Showing page {{ activities.number }} of {{ activities.paginator.num_pages }} ({{ activities.paginator.count }} total logs)
+    </div>
+    <div class="pagination-controls">
+        {% if activities.has_previous %}
+        <a href="?page={{ activities.previous_page_number }}{% if action_filter %}&action={{ action_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
+        {% endif %}
+
+        {% for p in activities.paginator.page_range %}
+            {% if p == activities.number %}
+            <span class="page-btn active">{{ p }}</span>
+            {% elif p >= activities.number|add:"-2" and p <= activities.number|add:"2" %}
+            <a href="?page={{ p }}{% if action_filter %}&action={{ action_filter }}{% endif %}" class="page-btn">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if activities.has_next %}
+        <a href="?page={{ activities.next_page_number }}{% if action_filter %}&action={{ action_filter }}{% endif %}" class="page-btn">
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        {% else %}
+        <span class="page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

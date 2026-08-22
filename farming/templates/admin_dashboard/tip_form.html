@@ -1,0 +1,81 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ action_mode }} Farming Tip | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_tips' %}">Farming Tips</a> &gt; {{ action_mode }}{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">{{ action_mode }} Farming Tip</h1>
+        <p class="admin-page-subtitle">Publish structured agricultural knowledge for farmers</p>
+    </div>
+    <div>
+        <a href="{% url 'admin_tips' %}" class="btn-admin btn-admin-outline btn-admin-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to Tips
+        </a>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 800px;">
+    <div class="card-header">
+        <div class="card-title">
+            <i class="fa-solid fa-lightbulb"></i>
+            Tip Information
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="admin-form-group">
+                <label for="tip_title" class="admin-form-label">Tip Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.title.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="tip_category" class="admin-form-label">Agricultural Category *</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.category.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tip_level" class="admin-form-label">Level / Badge Tag</label>
+                    {{ form.level }}
+                    {% if form.level.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.level.errors.0 }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="admin-form-group">
+                <label for="tip_description" class="admin-form-label">Detailed Description & Actionable Advice *</label>
+                {{ form.description }}
+                {% if form.description.errors %}<div style="color: var(--danger); font-size: 0.8rem; margin-top: 4px;">{{ form.description.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="admin-form-grid">
+                <div class="admin-form-group">
+                    <label for="tip_icon" class="admin-form-label">FontAwesome Icon Class</label>
+                    {{ form.icon }}
+                    <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px;">
+                        e.g., <code>fa-seedling</code>, <code>fa-faucet-drip</code>, <code>fa-flask-vial</code>, <code>fa-shield-virus</code>, <code>fa-mountain-sun</code>
+                    </div>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="tip_image" class="admin-form-label">Illustration Image (Optional)</label>
+                    {{ form.image }}
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <a href="{% url 'admin_tips' %}" class="btn-admin btn-admin-outline">Cancel</a>
+                <button type="submit" class="btn-admin btn-admin-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Farming Tip
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

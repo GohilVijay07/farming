@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ page_title|default:"AgriConnect — Smart Farming Management System" }}{% endblock %}
+    </title>
+
+    <!-- Meta Tags for SEO -->
+    <meta name="description"
+        content="AgriConnect is a modern, simple smart farming management platform helping farmers track crops, monitor weather, and implement sustainable agricultural practices.">
+    <meta name="keywords" content="farming management, agriculture system, crop tracking, smart farming, farmer portal">
+    <meta name="author" content="AgriConnect">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons (CDN) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Global Agriculture Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Flash Notification Messages -->
+    {% if messages %}
+    <div class="messages-container" id="messagesContainer">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                {% if message.tags == 'success' %}
+                <i class="fa-solid fa-circle-check"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'warning' %}
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                {% else %}
+                <i class="fa-solid fa-circle-info"></i>
+                {% endif %}
+                <span>{{ message }}</span>
+            </div>
+            <button type="button" class="alert-close" aria-label="Close message">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="container navbar-inner">
+            <!-- Brand Logo -->
+            <a href="{% url 'home' %}" class="brand-logo">
+                <i class="fa-solid fa-seedling"></i>
+                Agri<span>Connect</span>
+            </a>
+
+            <!-- Desktop Navigation Links -->
+            <nav class="nav-menu" id="navMenu">
+                <a href="{% url 'home' %}" class="nav-link {% if active_page == 'home' %}active{% endif %}">Home</a>
+                <a href="{% url 'about' %}" class="nav-link {% if active_page == 'about' %}active{% endif %}">About</a>
+                <a href="{% url 'crops' %}" class="nav-link {% if active_page == 'crops' %}active{% endif %}">Crops</a>
+                <a href="{% url 'farming_tips' %}"
+                    class="nav-link {% if active_page == 'tips' %}active{% endif %}">Farming Tips</a>
+                <a href="{% url 'weather' %}"
+                    class="nav-link {% if active_page == 'weather' %}active{% endif %}">Weather</a>
+                <a href="{% url 'contact' %}"
+                    class="nav-link {% if active_page == 'contact' %}active{% endif %}">Contact</a>
+
+                <!-- Mobile Only Auth Controls inside Drawer -->
+                <div class="mobile-auth-section"
+                    style="display: none; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.5rem; flex-direction: column; gap: 0.5rem;">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-sm" style="width: 100%;">
+                        <i class="fa-solid fa-gauge"></i> Portal
+                    </a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline btn-sm" style="width: 100%;">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline btn-sm" style="width: 100%;">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-sm" style="width: 100%;">Register</a>
+                    {% endif %}
+                </div>
+            </nav>
+
+            <!-- Navigation Actions (Desktop Buttons) -->
+            <div class="nav-actions">
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-sm">
+                    <i class="fa-solid fa-gauge"></i> Portal
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-outline btn-sm">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-outline btn-sm">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Register</a>
+                {% endif %}
+            </div>
+
+            <!-- Hamburger Button for Mobile -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Dynamic Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="{% url 'home' %}" class="brand-logo" style="color: var(--white); margin-bottom: 1rem;">
+                        <i class="fa-solid fa-seedling" style="color: var(--accent);"></i>
+                        Agri<span style="color: var(--gold);">Connect</span>
+                    </a>
+                    <p>
+                        A simple, reliable and smart farming management system designed for farmers to digitize crop
+                        cycles, optimize irrigation, and adopt modern agriculture techniques.
+                    </p>
+                </div>
+
+                <div>
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About Us</a></li>
+                        <li><a href="{% url 'crops' %}">Crops Catalog</a></li>
+                        <li><a href="{% url 'farming_tips' %}">Farming Tips</a></li>
+                        <li><a href="{% url 'weather' %}">Weather Advisory</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Farmer Portal</h4>
+                    <ul class="footer-links">
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                        <li><a href="{% url 'my_crops' %}">My Crops</a></li>
+                        <li><a href="{% url 'add_crop' %}">Add New Crop</a></li>
+                        <li><a href="{% url 'profile' %}">Farmer Profile</a></li>
+                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}">Farmer Login</a></li>
+                        <li><a href="{% url 'register' %}">Farmer Registration</a></li>
+                        <li><a href="{% url 'contact' %}">Support & Contact</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Support & Contact</h4>
+                    <p><i class="fa-solid fa-location-dot" style="margin-right: 8px; color: var(--accent);"></i>
+                        Agriculture Tech Hub, Gujarat</p>
+                    <p><i class="fa-solid fa-envelope" style="margin-right: 8px; color: var(--accent);"></i>farmingsupport1@gmail.com</p>
+                    <p><i class="fa-solid fa-phone" style="margin-right: 8px; color: var(--accent);"></i> +91 6354489008
+                    </p>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2026 AgriConnect. All Rights Reserved. Smart Farming for a Better Future.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Main JavaScript -->
+    <script src="{% static 'js/script.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

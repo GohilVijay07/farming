@@ -1,0 +1,121 @@
+{% extends 'farming/base.html' %}
+{% load static %}
+
+{% block title %}About Gujarat Agriculture & AgriConnect | AgriConnect{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); padding: 3.5rem 0 2.75rem; text-align: center;">
+    <div class="container">
+        <span class="section-tag" style="background: rgba(255, 255, 255, 0.2); color: var(--white); margin-bottom: 0.85rem; border: none;">Gujarat Agricultural Mission</span>
+        <h1 style="color: var(--white); font-size: 2.6rem; margin-bottom: 0.65rem;">About AgriConnect Gujarat</h1>
+        <p style="color: var(--light-green); max-width: 680px; margin: 0 auto; font-size: 1.05rem;">
+            Empowering Gujarat's farmers across Saurashtra, North, Central, South Gujarat, and Kutch with digital crop records, micro-irrigation management, and district weather advisories.
+        </p>
+    </div>
+</div>
+
+<!-- Main About Content -->
+<section class="section">
+    <div class="container">
+        <div class="grid-2" style="align-items: center;">
+            <div>
+                <span class="section-tag">Dedicated to Gujarat</span>
+                <h2 class="section-title">Bridging Gujarat's Agrarian Heritage with Technology</h2>
+                <p style="font-size: 1.05rem; line-height: 1.7;">
+                    <strong>AgriConnect</strong> is built specifically for the farming community of <strong>Gujarat, India</strong>. Gujarat is a national powerhouse in cotton, groundnut, spices, castor, dairy, and horticulture.
+                </p>
+                <p>
+                    From the black cotton soils of Saurashtra to the fertile Goradu tracts of Charotar and the dryland farms of Kutch and Banaskantha, AgriConnect equips every Gujarati farmer with digital record-keeping, GGRC drip irrigation guidelines, and localized 33-district weather forecasting.
+                </p>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap;">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                        <i class="fa-solid fa-gauge"></i> Open Farmer Portal
+                    </a>
+                    {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-primary">
+                        <i class="fa-solid fa-user-plus"></i> Register Gujarat Farm
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'crops' %}" class="btn btn-secondary">
+                        <i class="fa-solid fa-leaf"></i> Gujarat Crop Catalog
+                    </a>
+                </div>
+            </div>
+            <div>
+                <div class="card" style="border: 2px solid var(--accent-light); background: linear-gradient(145deg, var(--white), var(--light-green));">
+                    <h3 style="margin-bottom: 1.15rem; color: var(--primary);"><i class="fa-solid fa-location-dot" style="color: var(--primary-light); margin-right: 8px;"></i> 5 Agro-Climatic Zones of Gujarat</h3>
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem;">
+                        <li style="display: flex; gap: 0.75rem;">
+                            <i class="fa-solid fa-seedling" style="color: var(--primary-light); font-size: 1.1rem; margin-top: 2px;"></i>
+                            <span><strong>Saurashtra:</strong> Groundnut (મગફળી), Cotton (કપાસ), Sesame, Mahuva Onion, and Talala Kesar Mango.</span>
+                        </li>
+                        <li style="display: flex; gap: 0.75rem;">
+                            <i class="fa-solid fa-seedling" style="color: var(--primary-light); font-size: 1.1rem; margin-top: 2px;"></i>
+                            <span><strong>North Gujarat:</strong> Unjha Cumin (જીરું), Mustard, Fennel, Castor (દિવેલા), and Deesa Potato.</span>
+                        </li>
+                        <li style="display: flex; gap: 0.75rem;">
+                            <i class="fa-solid fa-seedling" style="color: var(--primary-light); font-size: 1.1rem; margin-top: 2px;"></i>
+                            <span><strong>Central Gujarat & Bhal:</strong> Bhalia Wheat, Charotar Tobacco, Paddy, Maize, and Dairy Fodder.</span>
+                        </li>
+                        <li style="display: flex; gap: 0.75rem;">
+                            <i class="fa-solid fa-seedling" style="color: var(--primary-light); font-size: 1.1rem; margin-top: 2px;"></i>
+                            <span><strong>South Gujarat:</strong> Sugarcane (શેરડી), Paddy, Banana, Chikoo, and 100% Organic Dang.</span>
+                        </li>
+                        <li style="display: flex; gap: 0.75rem;">
+                            <i class="fa-solid fa-seedling" style="color: var(--primary-light); font-size: 1.1rem; margin-top: 2px;"></i>
+                            <span><strong>Kutch:</strong> Date Palm, Pomegranate, Castor, Bajra, and Dryland Horticulture.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3 Feature Pillars -->
+<section class="section section-alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Key Features</span>
+            <h2 class="section-title">The Three Pillars for Gujarat's Agrarian Growth</h2>
+            <p class="section-subtitle">
+                Engineered to keep Gujarat farming operations productive, water-efficient, and digitally connected.
+            </p>
+        </div>
+
+        <div class="grid-3">
+            <div class="card feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <h3 class="feature-title">🌾 Gujarat Crop Management</h3>
+                <p>
+                    Track crop cycles across Kharif, Rabi, and Summer seasons. Record exact farm acreages in acres, planting dates, and anticipated harvest timelines.
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-faucet-drip"></i>
+                </div>
+                <h3 class="feature-title">💧 Micro-Irrigation & Water</h3>
+                <p>
+                    Access tailored guidance on drip fertigation, farm ponds (Khet Talavadi), Desi Gir cow Jeevamrutha, and integrated pest management (IPM).
+                </p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-cloud-sun"></i>
+                </div>
+                <h3 class="feature-title">🌦️ 33 Districts Weather Advisory</h3>
+                <p>
+                    Real-time weather data and agricultural advisories for all 33 districts of Gujarat from Ahmedabad and Rajkot to Surat and Bhuj.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

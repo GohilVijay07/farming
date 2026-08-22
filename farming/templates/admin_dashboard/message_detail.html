@@ -1,0 +1,85 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Message: {{ msg.subject }} | AgriConnect Admin{% endblock %}
+{% block breadcrumb %}<a href="{% url 'admin_messages' %}">Messages</a> &gt; {{ msg.subject|truncatechars:20 }}{% endblock %}
+
+{% block content %}
+<div class="admin-page-header">
+    <div>
+        <h1 class="admin-page-title">Inquiry Details</h1>
+        <p class="admin-page-subtitle">Submitted via AgriConnect Public Contact Us Form</p>
+    </div>
+    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+        <a href="{% url 'admin_messages' %}" class="btn-admin btn-admin-outline btn-admin-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back to Messages
+        </a>
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject|urlencode }}" class="btn-admin btn-admin-primary btn-admin-sm">
+            <i class="fa-solid fa-reply"></i> Reply via Email
+        </a>
+        <a href="{% url 'admin_message_toggle_read' msg.id %}" class="btn-admin btn-admin-outline btn-admin-sm">
+            <i class="fa-solid {% if msg.is_read %}fa-envelope{% else %}fa-envelope-open{% endif %}"></i>
+            Mark as {% if msg.is_read %}Unread{% else %}Read{% endif %}
+        </a>
+        <button type="button" class="btn-admin btn-admin-danger btn-admin-sm"
+                onclick="openDeleteConfirmModal('{% url 'admin_message_delete' msg.id %}', 'Delete this contact message from {{ msg.name }}?');">
+            <i class="fa-solid fa-trash-can"></i> Delete
+        </button>
+    </div>
+</div>
+
+<div class="admin-card" style="max-width: 860px;">
+    <div class="card-header" style="display: flex; align-items: center; justify-content: space-between;">
+        <div class="card-title">
+            <i class="fa-solid fa-envelope-open-text"></i>
+            {{ msg.subject }}
+        </div>
+        <div>
+            {% if msg.is_read %}
+            <span class="status-pill pill-green"><i class="fa-solid fa-check-double"></i> Read</span>
+            {% else %}
+            <span class="status-pill pill-red"><i class="fa-solid fa-circle"></i> Unread</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">From</div>
+                <div style="font-weight: 600; font-size: 1.05rem;">{{ msg.name }}</div>
+            </div>
+            <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Email Address</div>
+                <div><a href="mailto:{{ msg.email }}" style="font-weight: 600;">{{ msg.email }}</a></div>
+            </div>
+            <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Date Received</div>
+                <div>{{ msg.created_at|date:"d M Y, h:i A" }}</div>
+            </div>
+            {% if msg.read_at %}
+            <div>
+                <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Read Timestamp</div>
+                <div>{{ msg.read_at|date:"d M Y, h:i A" }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <div style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">
+                Message Content
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.5rem; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; color: var(--text);">
+{{ msg.message }}
+            </div>
+        </div>
+    </div>
+    <div class="card-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.82rem; color: var(--text-muted);">
+            Message ID: #{{ msg.id }}
+        </span>
+        <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject|urlencode }}" class="btn-admin btn-admin-primary btn-admin-sm">
+            <i class="fa-solid fa-paper-plane"></i> Send Direct Email Reply
+        </a>
+    </div>
+</div>
+{% endblock %}
