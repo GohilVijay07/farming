@@ -5,11 +5,13 @@
 
 {% block content %}
 <!-- Page Header -->
-<div style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); padding: 3.5rem 0 2.75rem; text-align: center;">
+<div style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 4rem 0 3.25rem; text-align: center;">
     <div class="container">
-        <span class="section-tag" style="background: rgba(255, 255, 255, 0.2); color: var(--white); margin-bottom: 0.85rem; border: none;">Gujarat Agronomy Guidance</span>
-        <h1 style="color: var(--white); font-size: 2.6rem; margin-bottom: 0.65rem;">Gujarat Farming Tips & Best Practices</h1>
-        <p style="color: var(--light-green); max-width: 680px; margin: 0 auto; font-size: 1.05rem;">
+        <span class="section-tag" style="background: rgba(255, 255, 255, 0.15); color: var(--accent-light); margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.25);">
+            <i class="fa-solid fa-lightbulb" style="margin-right: 5px;"></i> Practical Agronomy Guidance
+        </span>
+        <h1 style="color: var(--white); font-size: 2.85rem; margin-bottom: 0.75rem; font-weight: 800;">Gujarat Farming Tips & Best Practices</h1>
+        <p style="color: var(--accent-light); max-width: 700px; margin: 0 auto; font-size: 1.1rem; line-height: 1.6;">
             Scientifically proven advice for Saurashtra, North, Central & South Gujarat: soil health cards, GGRC micro-irrigation, Kharif/Rabi schedules, and Prakrutik Kheti.
         </p>
     </div>
@@ -32,20 +34,20 @@
         <!-- Tips Display Groups -->
         <div id="tipsContainer">
             {% for cat in categories %}
-            <div class="tips-category-group" data-slug="{{ cat.slug }}" style="margin-bottom: 3rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; border-bottom: 2px solid var(--border); padding-bottom: 0.65rem;">
-                    <div style="width: 38px; height: 38px; border-radius: var(--radius-md); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+            <div class="tips-category-group" data-slug="{{ cat.slug }}" style="margin-bottom: 3.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.85rem;">
+                    <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                         <i class="fa-solid {{ cat.icon }}"></i>
                     </div>
-                    <h2 style="font-size: 1.5rem; color: var(--primary);">{{ cat.name }}</h2>
+                    <h2 style="font-size: 1.6rem; color: var(--primary-dark); margin: 0;">{{ cat.name }}</h2>
                 </div>
 
                 <div class="grid-3">
                     {% for tip in cat.tips %}
-                    <div class="tip-card">
+                    <div class="tip-card card-3d">
                         <span class="tip-badge">{{ tip.level }}</span>
                         <h3 class="tip-title">{{ tip.title }}</h3>
-                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0;">
+                        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 0;">
                             {{ tip.text }}
                         </p>
                     </div>

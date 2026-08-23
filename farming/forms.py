@@ -203,14 +203,19 @@ class FarmerProfileUpdateForm(forms.Form):
     def __init__(self, user, *args, **kwargs):
         self.user = user
         super().__init__(*args, **kwargs)
-        if hasattr(user, 'farmer_profile'):
-            self.fields['full_name'].initial = user.farmer_profile.full_name
-            self.fields['phone'].initial = user.farmer_profile.phone
-            self.fields['district'].initial = user.farmer_profile.district
-            self.fields['taluka'].initial = user.farmer_profile.taluka
-            self.fields['farm_location'].initial = user.farmer_profile.farm_location
+        profile = getattr(user, 'farmer_profile', None)
+        if profile:
+            self.fields['full_name'].initial = profile.full_name or user.get_full_name() or user.username
+            self.fields['phone'].initial = profile.phone
+            self.fields['district'].initial = profile.district or 'Ahmedabad'
+            self.fields['taluka'].initial = profile.taluka
+            self.fields['farm_location'].initial = profile.farm_location
         else:
             self.fields['full_name'].initial = user.get_full_name() or user.username
+            self.fields['phone'].initial = ''
+            self.fields['district'].initial = 'Ahmedabad'
+            self.fields['taluka'].initial = ''
+            self.fields['farm_location'].initial = ''
         self.fields['email'].initial = user.email
 
     def clean_email(self):

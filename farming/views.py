@@ -1985,6 +1985,18 @@ def profile_view(request):
     """
     Farmer Profile View and Update.
     """
+    profile, _ = FarmerProfile.objects.get_or_create(
+        user=request.user,
+        defaults={
+            'full_name': request.user.get_full_name() or request.user.username,
+            'phone': '',
+            'state': 'Gujarat',
+            'district': 'Ahmedabad',
+            'taluka': '',
+            'farm_location': '',
+        }
+    )
+
     if request.method == 'POST':
         form = FarmerProfileUpdateForm(request.user, request.POST)
         if form.is_valid():
@@ -1995,9 +2007,6 @@ def profile_view(request):
             messages.error(request, "Could not update profile. Please verify your entries.")
     else:
         form = FarmerProfileUpdateForm(request.user)
-
-    # Get farmer profile record if exists
-    profile = getattr(request.user, 'farmer_profile', None)
 
     context = {
         'page_title': 'My Farmer Profile | AgriConnect',

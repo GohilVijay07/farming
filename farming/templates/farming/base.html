@@ -5,23 +5,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ page_title|default:"AgriConnect — Smart Farming Management System" }}{% endblock %}
-    </title>
+    <title>{% block title %}{{ page_title|default:"AgriConnect | Smart Agriculture Digital Platform for Gujarat" }}{% endblock %}</title>
 
-    <!-- Meta Tags for SEO -->
-    <meta name="description"
-        content="AgriConnect is a modern, simple smart farming management platform helping farmers track crops, monitor weather, and implement sustainable agricultural practices.">
-    <meta name="keywords" content="farming management, agriculture system, crop tracking, smart farming, farmer portal">
-    <meta name="author" content="AgriConnect">
+    <!-- Meta Tags for SEO & Open Graph -->
+    <meta name="description" content="AgriConnect is a modern smart agriculture platform empowering Gujarat farmers to digitize crop cycles, monitor 33-district weather, track farm acreage, and adopt sustainable farming practices.">
+    <meta name="keywords" content="smart agriculture, Gujarat farming, crop management, Saurashtra crops, agricultural technology, farmer portal, weather advisory Gujarat">
+    <meta name="author" content="Vijay Gohil">
+    <meta property="og:title" content="AgriConnect — Smart Agriculture Digital Platform for Gujarat">
+    <meta property="og:description" content="Digitize crop cycles, monitor live weather, and manage agricultural activities across Gujarat from one modern platform.">
+    <meta property="og:type" content="website">
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts Import (Outfit for Headings, Inter for Body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <!-- Font Awesome Icons (CDN) -->
+    <!-- Font Awesome 6 Icons (CDN) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Global Agriculture Stylesheet -->
@@ -33,66 +32,62 @@
 
     <!-- Flash Notification Messages -->
     {% if messages %}
-    <div class="messages-container" id="messagesContainer">
+    <div class="messages-container" id="messagesContainer" role="region" aria-label="Notifications">
         {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
                 {% if message.tags == 'success' %}
-                <i class="fa-solid fa-circle-check"></i>
+                <i class="fa-solid fa-circle-check" style="font-size: 1.1rem;"></i>
                 {% elif message.tags == 'error' or message.tags == 'danger' %}
-                <i class="fa-solid fa-circle-exclamation"></i>
+                <i class="fa-solid fa-circle-exclamation" style="font-size: 1.1rem;"></i>
                 {% elif message.tags == 'warning' %}
-                <i class="fa-solid fa-triangle-exclamation"></i>
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.1rem;"></i>
                 {% else %}
-                <i class="fa-solid fa-circle-info"></i>
+                <i class="fa-solid fa-circle-info" style="font-size: 1.1rem;"></i>
                 {% endif %}
                 <span>{{ message }}</span>
             </div>
-            <button type="button" class="alert-close" aria-label="Close message">&times;</button>
+            <button type="button" class="alert-close" aria-label="Close notification">&times;</button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Top Navigation Bar -->
-    <header class="navbar">
+    <!-- Top Sticky Glassmorphic Navigation Bar -->
+    <header class="navbar" id="mainNavbar">
         <div class="container navbar-inner">
             <!-- Brand Logo -->
-            <a href="{% url 'home' %}" class="brand-logo">
+            <a href="{% url 'home' %}" class="brand-logo" aria-label="AgriConnect Home">
                 <i class="fa-solid fa-seedling"></i>
                 Agri<span>Connect</span>
             </a>
 
             <!-- Desktop Navigation Links -->
-            <nav class="nav-menu" id="navMenu">
+            <nav class="nav-menu" id="navMenu" aria-label="Main Navigation">
                 <a href="{% url 'home' %}" class="nav-link {% if active_page == 'home' %}active{% endif %}">Home</a>
                 <a href="{% url 'about' %}" class="nav-link {% if active_page == 'about' %}active{% endif %}">About</a>
                 <a href="{% url 'crops' %}" class="nav-link {% if active_page == 'crops' %}active{% endif %}">Crops</a>
-                <a href="{% url 'farming_tips' %}"
-                    class="nav-link {% if active_page == 'tips' %}active{% endif %}">Farming Tips</a>
-                <a href="{% url 'weather' %}"
-                    class="nav-link {% if active_page == 'weather' %}active{% endif %}">Weather</a>
-                <a href="{% url 'contact' %}"
-                    class="nav-link {% if active_page == 'contact' %}active{% endif %}">Contact</a>
+                <a href="{% url 'farming_tips' %}" class="nav-link {% if active_page == 'tips' %}active{% endif %}">Farming Tips</a>
+                <a href="{% url 'weather' %}" class="nav-link {% if active_page == 'weather' %}active{% endif %}">Weather</a>
+                <a href="{% url 'contact' %}" class="nav-link {% if active_page == 'contact' %}active{% endif %}">Contact</a>
 
                 <!-- Mobile Only Auth Controls inside Drawer -->
-                <div class="mobile-auth-section"
-                    style="display: none; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.5rem; flex-direction: column; gap: 0.5rem;">
+                <div class="mobile-auth-section" style="display: none; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 0.75rem; flex-direction: column; gap: 0.65rem;">
                     {% if user.is_authenticated %}
-                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-sm" style="width: 100%;">
-                        <i class="fa-solid fa-gauge"></i> Portal
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary" style="width: 100%;">
+                        <i class="fa-solid fa-gauge"></i> Farmer Portal
                     </a>
-                    <a href="{% url 'logout' %}" class="btn btn-outline btn-sm" style="width: 100%;">
+                    <a href="{% url 'logout' %}" class="btn btn-outline" style="width: 100%; color: #DC2626 !important; border-color: #DC2626;">
                         <i class="fa-solid fa-right-from-bracket"></i> Logout
                     </a>
                     {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-outline btn-sm" style="width: 100%;">Login</a>
-                    <a href="{% url 'register' %}" class="btn btn-primary btn-sm" style="width: 100%;">Register</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline" style="width: 100%;">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%;">Register Farm</a>
                     {% endif %}
                 </div>
             </nav>
 
-            <!-- Navigation Actions (Desktop Buttons) -->
+            <!-- Navigation Actions (Desktop CTA Buttons) -->
             <div class="nav-actions">
                 {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}" class="btn btn-primary btn-sm">
@@ -119,66 +114,93 @@
         {% block content %}{% endblock %}
     </main>
 
+    <!-- Back to Top Button -->
+    <button type="button" class="back-to-top" id="backToTopBtn" aria-label="Scroll back to top">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
+                <!-- Brand & Description -->
                 <div>
-                    <a href="{% url 'home' %}" class="brand-logo" style="color: var(--white); margin-bottom: 1rem;">
+                    <a href="{% url 'home' %}" class="brand-logo" style="color: var(--white); margin-bottom: 1.15rem;">
                         <i class="fa-solid fa-seedling" style="color: var(--accent);"></i>
-                        Agri<span style="color: var(--gold);">Connect</span>
+                        Agri<span style="color: var(--accent-light);">Connect</span>
                     </a>
                     <p>
-                        A simple, reliable and smart farming management system designed for farmers to digitize crop
-                        cycles, optimize irrigation, and adopt modern agriculture techniques.
+                        A modern, smart digital agriculture platform engineered for Gujarat farmers to digitize crop lifecycles, monitor regional weather, and adopt sustainable farming practices.
                     </p>
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+                        <span style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; background: rgba(255, 255, 255, 0.08); padding: 0.35rem 0.75rem; border-radius: var(--radius-full); color: var(--accent-light);">
+                            <i class="fa-solid fa-shield-halved"></i> 100% Gujarat Focused
+                        </span>
+                    </div>
                 </div>
 
+                <!-- Quick Navigation Links -->
                 <div>
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
-                        <li><a href="{% url 'home' %}">Home</a></li>
-                        <li><a href="{% url 'about' %}">About Us</a></li>
-                        <li><a href="{% url 'crops' %}">Crops Catalog</a></li>
-                        <li><a href="{% url 'farming_tips' %}">Farming Tips</a></li>
-                        <li><a href="{% url 'weather' %}">Weather Advisory</a></li>
+                        <li><a href="{% url 'home' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Home</a></li>
+                        <li><a href="{% url 'about' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> About Us</a></li>
+                        <li><a href="{% url 'crops' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Crops Catalog</a></li>
+                        <li><a href="{% url 'farming_tips' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Farming Tips</a></li>
+                        <li><a href="{% url 'weather' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Weather Advisory</a></li>
                     </ul>
                 </div>
 
+                <!-- Farmer Portal Links -->
                 <div>
                     <h4>Farmer Portal</h4>
                     <ul class="footer-links">
                         {% if user.is_authenticated %}
-                        <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
-                        <li><a href="{% url 'my_crops' %}">My Crops</a></li>
-                        <li><a href="{% url 'add_crop' %}">Add New Crop</a></li>
-                        <li><a href="{% url 'profile' %}">Farmer Profile</a></li>
-                        <li><a href="{% url 'logout' %}">Logout</a></li>
+                        <li><a href="{% url 'dashboard' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Dashboard</a></li>
+                        <li><a href="{% url 'my_crops' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> My Crops</a></li>
+                        <li><a href="{% url 'add_crop' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Add New Crop</a></li>
+                        <li><a href="{% url 'profile' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Farmer Profile</a></li>
+                        <li><a href="{% url 'logout' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Logout</a></li>
                         {% else %}
-                        <li><a href="{% url 'login' %}">Farmer Login</a></li>
-                        <li><a href="{% url 'register' %}">Farmer Registration</a></li>
-                        <li><a href="{% url 'contact' %}">Support & Contact</a></li>
+                        <li><a href="{% url 'login' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Farmer Login</a></li>
+                        <li><a href="{% url 'register' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Farmer Registration</a></li>
+                        <li><a href="{% url 'contact' %}"><i class="fa-solid fa-angle-right" style="font-size: 0.75rem; margin-right: 4px;"></i> Support & Contact</a></li>
                         {% endif %}
                     </ul>
                 </div>
 
+                <!-- Support & Developer -->
                 <div>
-                    <h4>Support & Contact</h4>
-                    <p><i class="fa-solid fa-location-dot" style="margin-right: 8px; color: var(--accent);"></i>
-                        Agriculture Tech Hub, Gujarat</p>
-                    <p><i class="fa-solid fa-envelope" style="margin-right: 8px; color: var(--accent);"></i>farmingsupport1@gmail.com</p>
-                    <p><i class="fa-solid fa-phone" style="margin-right: 8px; color: var(--accent);"></i> +91 6354489008
+                    <h4>Developer & Support</h4>
+                    <p style="margin-bottom: 0.65rem;">
+                        <i class="fa-solid fa-user-tie" style="margin-right: 8px; color: var(--accent);"></i>
+                        <strong>Vijay Gohil</strong>
+                    </p>
+                    <p style="margin-bottom: 0.65rem;">
+                        <i class="fa-brands fa-github" style="margin-right: 8px; color: var(--accent);"></i>
+                        <a href="https://github.com/GohilVijay07" target="_blank" rel="noopener noreferrer" style="color: var(--accent-light); text-decoration: underline;">
+                            github.com/GohilVijay07
+                        </a>
+                    </p>
+                    <p style="margin-bottom: 0.65rem;">
+                        <i class="fa-solid fa-envelope" style="margin-right: 8px; color: var(--accent);"></i>
+                        farmingsupport1@gmail.com
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <i class="fa-solid fa-location-dot" style="margin-right: 8px; color: var(--accent);"></i>
+                        Gujarat, India
                     </p>
                 </div>
             </div>
 
             <div class="footer-bottom">
                 <p>&copy; 2026 AgriConnect. All Rights Reserved. Smart Farming for a Better Future.</p>
+                <p>Made with <i class="fa-solid fa-heart" style="color: #EF4444;"></i> by <strong>Vijay Gohil</strong></p>
             </div>
         </div>
     </footer>
 
-    <!-- Main JavaScript -->
+    <!-- Main JavaScript Framework -->
     <script src="{% static 'js/script.js' %}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>

@@ -1,15 +1,15 @@
 {% extends 'farming/base.html' %}
 {% load static %}
 
-{% block title %}Farmer Dashboard | AgriConnect{% endblock %}
+{% block title %}Farmer Dashboard | AgriConnect Gujarat{% endblock %}
 
 {% block content %}
 <div class="dashboard-layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div>
-            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
-                Farmer Portal
+            <div style="font-size: 0.76rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 1.25rem; padding-left: 0.5rem;">
+                Gujarat Farmer Portal
             </div>
             <ul class="sidebar-menu">
                 <li>
@@ -39,12 +39,12 @@
                 </li>
                 <li>
                     <a href="{% url 'profile' %}" class="sidebar-link {% if active_page == 'profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user-pen"></i> Profile
+                        <i class="fa-solid fa-user-pen"></i> Farm Profile
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
-                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                        <i class="fa-solid fa-right-from-bracket" style="color: #DC2626;"></i> Logout
                     </a>
                 </li>
             </ul>
@@ -56,7 +56,9 @@
             </div>
             <div class="user-info">
                 <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
-                <div class="user-role">{{ user.farmer_profile.district|default:"Gujarat Farmer" }}</div>
+                <div class="user-role">
+                    {% if user.farmer_profile and user.farmer_profile.district %}{{ user.farmer_profile.district }}, Gujarat{% else %}Gujarat Farmer{% endif %}
+                </div>
             </div>
         </div>
     </aside>
@@ -65,10 +67,20 @@
     <section class="dashboard-content">
         <div class="dashboard-header">
             <div>
-                <h1>Welcome, {{ user.farmer_profile.full_name|default:user.username }}!</h1>
-                <p style="margin-bottom: 0;">
-                    <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
-                    <strong style="color: var(--primary);">{{ user.farmer_profile.get_location_display|default:user.farmer_profile.district|default:"Gujarat, India" }}</strong>
+                <h1 style="font-size: 2.15rem; color: var(--primary-dark); margin-bottom: 0.25rem;">
+                    Welcome, {{ user.farmer_profile.full_name|default:user.username }}!
+                </h1>
+                <p style="margin-bottom: 0; font-size: 0.95rem;">
+                    <i class="fa-solid fa-location-dot" style="color: var(--accent);"></i>
+                    <strong style="color: var(--primary);">
+                        {% if user.farmer_profile and user.farmer_profile.get_location_display %}
+                            {{ user.farmer_profile.get_location_display }}
+                        {% elif user.farmer_profile and user.farmer_profile.district %}
+                            {{ user.farmer_profile.district }}, Gujarat
+                        {% else %}
+                            Gujarat, India
+                        {% endif %}
+                    </strong>
                     &bull; Live summary of your Gujarat farming operations.
                 </p>
             </div>
@@ -80,54 +92,54 @@
         </div>
 
         <!-- 4 Statistics Cards -->
-        <div class="stats-grid" style="margin-bottom: 2rem;">
-            <div class="stat-card">
-                <div class="stat-icon icon-green">
+        <div class="stats-grid" style="margin-bottom: 2.5rem;">
+            <div class="card card-3d" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.75rem 1.5rem;">
+                <div style="width: 54px; height: 54px; border-radius: var(--radius-md); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
                     <i class="fa-solid fa-wheat-awn"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Total Crops</div>
-                    <div class="stat-value">{{ total_crops }}</div>
+                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--text-muted);">Total Crops</div>
+                    <div style="font-size: 1.95rem; font-weight: 800; color: var(--primary-dark); line-height: 1.1;">{{ total_crops }}</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon icon-amber">
+            <div class="card card-3d" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.75rem 1.5rem;">
+                <div style="width: 54px; height: 54px; border-radius: var(--radius-md); background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
                     <i class="fa-solid fa-seedling"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Active Crops</div>
-                    <div class="stat-value">{{ active_crops }}</div>
+                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--text-muted);">Active Crops</div>
+                    <div style="font-size: 1.95rem; font-weight: 800; color: var(--primary-dark); line-height: 1.1;">{{ active_crops }}</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon icon-blue">
+            <div class="card card-3d" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.75rem 1.5rem;">
+                <div style="width: 54px; height: 54px; border-radius: var(--radius-md); background: #DCFCE7; color: #15803D; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
                     <i class="fa-solid fa-box-open"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Completed / Harvested</div>
-                    <div class="stat-value">{{ harvested_crops }}</div>
+                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--text-muted);">Harvested</div>
+                    <div style="font-size: 1.95rem; font-weight: 800; color: var(--primary-dark); line-height: 1.1;">{{ harvested_crops }}</div>
                 </div>
             </div>
 
-            <div class="stat-card">
-                <div class="stat-icon icon-brown">
+            <div class="card card-3d" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.75rem 1.5rem;">
+                <div style="width: 54px; height: 54px; border-radius: var(--radius-md); background: #FBF6F0; color: var(--earth); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
                     <i class="fa-solid fa-chart-area"></i>
                 </div>
                 <div>
-                    <div class="stat-label">Total Farm Area</div>
-                    <div class="stat-value">{{ total_area|floatformat:2 }} <span style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted);">Acres</span></div>
+                    <div style="font-size: 0.84rem; font-weight: 600; color: var(--text-muted);">Total Farm Area</div>
+                    <div style="font-size: 1.95rem; font-weight: 800; color: var(--primary-dark); line-height: 1.1;">{{ total_area|floatformat:2 }} <span style="font-size: 0.95rem; font-weight: 600; color: var(--text-muted);">Acres</span></div>
                 </div>
             </div>
         </div>
 
         <!-- Recent Crops Section -->
-        <div class="card" style="margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div class="card card-3d" style="margin-bottom: 2.5rem; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                 <div>
-                    <h2 style="font-size: 1.35rem; color: var(--primary);">Recent Crop Plantings</h2>
-                    <p style="font-size: 0.88rem; margin-bottom: 0; color: var(--text-muted);">Your latest crop registrations and current lifecycle status.</p>
+                    <h2 style="font-size: 1.45rem; color: var(--primary-dark); margin-bottom: 0.2rem;">Recent Crop Plantings</h2>
+                    <p style="font-size: 0.9rem; margin-bottom: 0; color: var(--text-muted);">Your latest crop registrations and current lifecycle status.</p>
                 </div>
                 <a href="{% url 'my_crops' %}" class="btn btn-secondary btn-sm">
                     View All Crops <i class="fa-solid fa-arrow-right"></i>
@@ -152,29 +164,29 @@
                         {% for crop in recent_crops %}
                         <tr>
                             <td>
-                                <strong>{{ crop.crop_name }}</strong>
+                                <strong style="color: var(--primary-dark);">{{ crop.crop_name }}</strong>
                             </td>
                             <td>{{ crop.crop_type }}</td>
                             <td>{{ crop.season }}</td>
-                            <td>{{ crop.farm_area }}</td>
+                            <td><strong>{{ crop.farm_area }}</strong></td>
                             <td>{{ crop.planting_date|date:"M d, Y" }}</td>
                             <td>
                                 {% if crop.status == 'Planted' %}
-                                <span class="badge badge-planted">Planted</span>
+                                <span class="status-pill pill-blue">Planted</span>
                                 {% elif crop.status == 'Growing' %}
-                                <span class="badge badge-growing">Growing</span>
+                                <span class="status-pill pill-amber">Growing</span>
                                 {% elif crop.status == 'Ready to Harvest' %}
-                                <span class="badge badge-ready">Ready to Harvest</span>
+                                <span class="status-pill pill-green">Ready to Harvest</span>
                                 {% else %}
-                                <span class="badge badge-harvested">Harvested</span>
+                                <span class="status-pill pill-gray">Harvested</span>
                                 {% endif %}
                             </td>
                             <td>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <a href="{% url 'edit_crop' crop.id %}" class="btn btn-outline btn-sm" title="Edit Crop">
+                                <div class="table-actions">
+                                    <a href="{% url 'edit_crop' crop.id %}" class="btn-icon" title="Edit Crop">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <a href="#" class="btn btn-danger btn-sm btn-trigger-delete" data-url="{% url 'delete_crop' crop.id %}" data-name="{{ crop.crop_name }}" title="Delete Crop">
+                                    <a href="#" class="btn-icon btn-icon-danger btn-trigger-delete" data-url="{% url 'delete_crop' crop.id %}" data-name="{{ crop.crop_name }}" title="Delete Crop">
                                         <i class="fa-solid fa-trash-can"></i>
                                     </a>
                                 </div>
@@ -185,10 +197,12 @@
                 </table>
             </div>
             {% else %}
-            <div style="text-align: center; padding: 3rem 1rem;">
-                <i class="fa-solid fa-wheat-awn" style="font-size: 3rem; color: var(--text-light); margin-bottom: 1rem;"></i>
-                <h3 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 0.5rem;">No Crops Added Yet</h3>
-                <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+            <div style="text-align: center; padding: 3.5rem 1rem;">
+                <div style="width: 64px; height: 64px; border-radius: var(--radius-full); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.25rem;">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <h3 style="color: var(--primary-dark); font-size: 1.35rem; margin-bottom: 0.5rem;">No Crops Added Yet</h3>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem; max-width: 440px; margin-left: auto; margin-right: auto; font-size: 0.95rem;">
                     You haven't recorded any crops on your farm profile yet. Start by adding your first crop to track growth and harvest schedules.
                 </p>
                 <a href="{% url 'add_crop' %}" class="btn btn-primary">
@@ -200,35 +214,35 @@
 
         <!-- Quick Help & Weather Row -->
         <div class="grid-2">
-            <div class="card" style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white);">
-                <h3 style="color: var(--white); font-size: 1.25rem; margin-bottom: 0.5rem;">
+            <div class="card card-3d" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 2rem;">
+                <h3 style="color: var(--white); font-size: 1.35rem; margin-bottom: 0.4rem;">
                     <i class="fa-solid fa-cloud-sun" style="color: var(--accent); margin-right: 6px;"></i> Local Weather Snapshot
                 </h3>
-                <p style="color: var(--light-green); font-size: 0.88rem; margin-bottom: 1.15rem;">
-                    Stay updated with local atmospheric conditions before scheduling your field watering or fertilizer spray.
+                <p style="color: var(--accent-light); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                    Stay updated with local atmospheric conditions before scheduling field watering or fertilizer spray.
                 </p>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.12); padding: 0.9rem 1.15rem; border-radius: var(--radius-md); margin-bottom: 1.15rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.12); padding: 1rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
                     <div>
-                        <div style="font-size: 1.75rem; font-weight: 800; color: var(--white);">26°C</div>
-                        <div style="font-size: 0.82rem; color: var(--light-green);">Partly Sunny • Good Spray Window</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--white); font-family: var(--font-heading);">32°C</div>
+                        <div style="font-size: 0.85rem; color: var(--accent-light); font-weight: 600;">Sunny • Optimal Spray Window</div>
                     </div>
-                    <i class="fa-solid fa-sun" style="font-size: 2.25rem; color: var(--gold);"></i>
+                    <i class="fa-solid fa-sun" style="font-size: 2.5rem; color: var(--gold);"></i>
                 </div>
                 <a href="{% url 'weather' %}" class="btn btn-secondary btn-sm" style="width: 100%;">
                     Open Full Weather Advisory <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
 
-            <div class="card">
-                <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--primary);">
-                    <i class="fa-solid fa-lightbulb" style="color: var(--primary-light); margin-right: 6px;"></i> Quick Farming Tip
+            <div class="card card-3d" style="padding: 2rem;">
+                <h3 style="font-size: 1.35rem; margin-bottom: 0.4rem; color: var(--primary-dark);">
+                    <i class="fa-solid fa-lightbulb" style="color: var(--accent); margin-right: 6px;"></i> Quick Agronomy Tip
                 </h3>
-                <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.15rem;">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
                     Rotate cereal grain crops with nitrogen-fixing pulses to naturally replenish soil organic carbon and curb pest lifecycles.
                 </p>
-                <div style="border-left: 3px solid var(--primary-light); padding-left: 0.85rem; margin-bottom: 1.15rem;">
-                    <div style="font-weight: 700; font-size: 0.88rem; color: var(--primary);">Micro-Irrigation Tip</div>
-                    <div style="font-size: 0.82rem; color: var(--text-muted);">Watering at early morning cuts soil evaporation losses by up to 35%.</div>
+                <div style="background: var(--light-green); border-left: 4px solid var(--primary); padding: 0.85rem 1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 1.25rem;">
+                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary-dark);">Micro-Irrigation Tip</div>
+                    <div style="font-size: 0.84rem; color: var(--text-muted);">Watering at early morning cuts soil evaporation losses by up to 35%.</div>
                 </div>
                 <a href="{% url 'farming_tips' %}" class="btn btn-outline btn-sm" style="width: 100%;">
                     Browse All Agronomy Tips <i class="fa-solid fa-arrow-right"></i>
@@ -239,19 +253,25 @@
 </div>
 
 <!-- Reusable Delete Confirmation Modal -->
-<div class="modal-overlay" id="deleteModal">
-    <div class="modal-box">
-        <div class="modal-icon">
+<div class="modal-overlay" id="deleteModal" style="position: fixed; inset: 0; background: rgba(11, 61, 26, 0.45); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1200;">
+    <div class="modal-box" style="background: var(--surface); padding: 2.25rem; border-radius: var(--radius-xl); max-width: 440px; width: 90%; text-align: center; box-shadow: var(--shadow-xl); border: 1px solid var(--border);">
+        <div style="width: 56px; height: 56px; border-radius: var(--radius-full); background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; font-size: 1.65rem; margin: 0 auto 1.15rem;">
             <i class="fa-solid fa-triangle-exclamation"></i>
         </div>
-        <h3 style="font-size: 1.35rem; color: var(--primary); margin-bottom: 0.5rem;">Delete Crop Record?</h3>
-        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">
-            Are you sure you want to delete <strong id="modalCropName" style="color: var(--primary);">this crop</strong>? This action cannot be undone.
+        <h3 style="font-size: 1.45rem; color: var(--primary-dark); margin-bottom: 0.4rem;">Delete Crop Record?</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem;">
+            Are you sure you want to delete <strong id="modalCropName" style="color: var(--primary-dark);">this crop</strong>? This action cannot be undone.
         </p>
-        <div class="modal-actions">
+        <div style="display: flex; gap: 0.75rem; justify-content: center;">
             <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
             <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete Crop</button>
         </div>
     </div>
 </div>
+
+<style>
+.modal-overlay.active {
+    display: flex !important;
+}
+</style>
 {% endblock %}

@@ -1,137 +1,348 @@
 {% extends 'farming/base.html' %}
 {% load static %}
 
-{% block title %}AgriConnect — Smart Farming Platform for Gujarat's Farmers{% endblock %}
+{% block title %}AgriConnect — Smart Agriculture Digital Platform for Gujarat{% endblock %}
 
 {% block content %}
-<!-- Gujarat Hero Section -->
+<!-- Modern Agricultural Hero Section with 3D Visual -->
 <section class="hero-section">
     <div class="container">
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="fa-solid fa-location-dot"></i> Gujarat Agriculture Management Portal
+        <div class="hero-grid">
+            <!-- Left Hero Content -->
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-leaf" style="color: var(--accent);"></i> Smart Agriculture Platform
+                </div>
+                <h1 class="hero-title">
+                    Grow Smarter.<br>
+                    <span class="gradient-text">Farm Better.</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Digitize your farming, monitor crops, understand Gujarat weather, and manage your agricultural activities from one simple, modern platform.
+                </p>
+                <div class="hero-cta">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-gauge"></i> Go to Farmer Dashboard
+                    </a>
+                    <a href="{% url 'crops' %}" class="btn btn-secondary btn-lg">
+                        <i class="fa-solid fa-wheat-awn"></i> Explore Crops
+                    </a>
+                    {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
+                        <i class="fa-solid fa-user-plus"></i> Go to Farmer Dashboard
+                    </a>
+                    <a href="{% url 'crops' %}" class="btn btn-secondary btn-lg">
+                        <i class="fa-solid fa-compass"></i> Explore Crops
+                    </a>
+                    {% endif %}
+                </div>
             </div>
-            <h1 class="hero-title">Smart Farming for Gujarat's Farmers</h1>
-            <p class="hero-subtitle">
-                Digitize your crop cycles, monitor district weather, adopt micro-irrigation best practices, and manage Saurashtra, North, Central & South Gujarat farms with confidence.
-            </p>
-            <div class="hero-cta">
-                {% if user.is_authenticated %}
-                <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
-                    <i class="fa-solid fa-gauge"></i> Go to Farmer Dashboard
-                </a>
-                <a href="{% url 'my_crops' %}" class="btn btn-secondary btn-lg">
-                    <i class="fa-solid fa-wheat-awn"></i> View My Crops
-                </a>
-                {% else %}
-                <a href="{% url 'register' %}" class="btn btn-primary btn-lg">
-                    <i class="fa-solid fa-user-plus"></i> Register Gujarat Farm
-                </a>
-                <a href="{% url 'crops' %}" class="btn btn-secondary btn-lg">
-                    <i class="fa-solid fa-compass"></i> Explore Gujarat Crops
-                </a>
-                {% endif %}
+
+            <!-- Right 3D Visual Canvas -->
+            <div class="hero-visual-canvas">
+                <!-- Base 3D Agriculture Dashboard Card -->
+                <div class="hero-3d-base-card card-3d">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <div style="width: 12px; height: 12px; border-radius: var(--radius-full); background: #22C55E; box-shadow: 0 0 8px #22C55E;"></div>
+                            <span style="font-weight: 700; font-size: 0.95rem; color: var(--primary-dark);">Gujarat Live Operations</span>
+                        </div>
+                        <span class="status-pill pill-green" style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-wifi"></i> Online
+                        </span>
+                    </div>
+
+                    <!-- Crop Growth Tracker Box -->
+                    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.15rem; margin-bottom: 1.15rem; box-shadow: var(--shadow-sm);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <div style="font-size: 1.5rem;">🌾</div>
+                                <div>
+                                    <strong style="font-size: 1rem; color: var(--text);">Bhalia Wheat (ઘઉં)</strong>
+                                    <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">Growing Stage</div>
+                                </div>
+                            </div>
+                            <span style="font-weight: 800; color: var(--primary); font-size: 1.1rem;">72%</span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div style="width: 100%; height: 8px; background: #E5E7EB; border-radius: var(--radius-full); overflow: hidden;">
+                            <div style="width: 72%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: var(--radius-full);"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                            <span>Growth Progress</span>
+                            <span>Harvest in 38 days</span>
+                        </div>
+                    </div>
+
+                    <!-- Micro Metrics Row -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.85rem; display: flex; align-items: center; gap: 0.65rem;">
+                            <div style="font-size: 1.35rem; color: var(--gold);"><i class="fa-solid fa-sun"></i></div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Solar Index</div>
+                                <strong style="font-size: 0.95rem; color: var(--text);">Optimal</strong>
+                            </div>
+                        </div>
+                        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.85rem; display: flex; align-items: center; gap: 0.65rem;">
+                            <div style="font-size: 1.35rem; color: #0284C7;"><i class="fa-solid fa-droplet"></i></div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Irrigation</div>
+                                <strong style="font-size: 0.95rem; color: var(--text);">Scheduled</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Glass Card 1: Live Weather -->
+                <div class="floating-card floating-card-1">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Gujarat Weather</div>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); line-height: 1;">32°C</div>
+                            <div style="font-size: 0.74rem; color: var(--primary); font-weight: 600;">Sunny • Ahmedabad</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Glass Card 2: Soil Moisture -->
+                <div class="floating-card floating-card-2">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 42px; height: 42px; border-radius: var(--radius-md); background: #E0F2FE; color: #0284C7; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Soil Moisture</div>
+                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); line-height: 1;">68%</div>
+                            <div style="font-size: 0.74rem; color: #15803D; font-weight: 600;">Healthy Condition</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Dynamic Gujarat Live Database Statistics -->
-<section style="background-color: var(--primary); color: var(--white); padding: 2.25rem 0;">
+<!-- Dynamic Gujarat Live Database Statistics (4 Glass 3D Cards) -->
+<section class="stats-section">
     <div class="container">
         <div class="stats-grid">
-            <div class="stat-card" style="justify-content: center; text-align: center; flex-direction: column;">
-                <div class="stat-value" style="color: var(--primary);">{{ total_farmers }}</div>
-                <div class="stat-label" style="font-size: 0.9rem;">Gujarat Farmers</div>
+            <!-- Stat Card 1 -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div class="stat-value">{{ total_farmers }}</div>
+                <div class="stat-label">Gujarat Farmers</div>
+                <div class="stat-subtext">Active farmer users</div>
             </div>
-            <div class="stat-card" style="justify-content: center; text-align: center; flex-direction: column;">
-                <div class="stat-value" style="color: var(--primary);">{{ total_crops_managed }}</div>
-                <div class="stat-label" style="font-size: 0.9rem;">Crops Managed</div>
+
+            <!-- Stat Card 2 -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-wheat-awn"></i>
+                </div>
+                <div class="stat-value">{{ total_crops_managed }}</div>
+                <div class="stat-label">Crops Managed</div>
+                <div class="stat-subtext">Active crop plantings</div>
             </div>
-            <div class="stat-card" style="justify-content: center; text-align: center; flex-direction: column;">
-                <div class="stat-value" style="color: var(--gold);">{{ total_farm_area|floatformat:1 }}</div>
-                <div class="stat-label" style="font-size: 0.9rem;">Total Acres Cultivated</div>
+
+            <!-- Stat Card 3 -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-chart-area"></i>
+                </div>
+                <div class="stat-value">{{ total_farm_area|floatformat:1 }}</div>
+                <div class="stat-label">Total Acres Cultivated</div>
+                <div class="stat-subtext">Gujarat farm acreage</div>
             </div>
-            <div class="stat-card" style="justify-content: center; text-align: center; flex-direction: column;">
-                <div class="stat-value" style="color: var(--primary);">{{ verified_farmers }}</div>
-                <div class="stat-label" style="font-size: 0.9rem;">Verified Farmers</div>
+
+            <!-- Stat Card 4 -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="stat-value">{{ verified_farmers }}</div>
+                <div class="stat-label">Verified Farmers</div>
+                <div class="stat-subtext">Email verified accounts</div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- About & Feature Pillars Section -->
+<!-- Why AgriConnect Section: 6 Modern Feature Cards -->
 <section class="section">
     <div class="container">
         <div class="section-header">
-            <span class="section-tag">Empowering Gujarat Agriculture</span>
-            <h2 class="section-title">Designed for Gujarat's Agro-Climatic Regions</h2>
+            <span class="section-tag">Why AgriConnect</span>
+            <h2 class="section-title">Everything You Need to Farm Smarter</h2>
             <p class="section-subtitle">
-                AgriConnect delivers tailored tools for farmers across Saurashtra, North Gujarat, Central Gujarat, South Gujarat, and Kutch to record crops, manage water, and maximize yields.
+                A unified digital suite designed specifically for Gujarat's agro-climatic conditions, crop types, and water management.
             </p>
         </div>
 
         <div class="grid-3">
-            <!-- Feature Card 1 -->
-            <div class="card feature-card">
+            <!-- 1. Crop Management -->
+            <div class="card feature-card card-3d">
                 <div class="feature-icon-wrapper">
-                    <i class="fa-solid fa-wheat-awn"></i>
+                    <i class="fa-solid fa-seedling"></i>
                 </div>
-                <h3 class="feature-title">🌾 Gujarat Crop Tracking</h3>
-                <p>
-                    Manage Cotton (કપાસ), Groundnut (મગફળી), Bhalia Wheat (ઘઉં), Cumin (જીરું), and Castor (દિવેલા). Track planting dates, acreage in acres, and harvest timelines.
-                </p>
+                <h3 class="feature-title">🌱 Crop Management</h3>
+                <p>Track planting dates, farm acreage, growth cycles, and harvest timelines across Kharif, Rabi, and Summer seasons.</p>
             </div>
 
-            <!-- Feature Card 2 -->
-            <div class="card feature-card">
+            <!-- 2. Gujarat Weather -->
+            <div class="card feature-card card-3d">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-cloud-sun-rain"></i>
+                </div>
+                <h3 class="feature-title">🌦️ Gujarat Weather</h3>
+                <p>Check real-time atmospheric conditions, precipitation chances, wind speed, and humidity for all 33 districts of Gujarat.</p>
+            </div>
+
+            <!-- 3. Smart Irrigation -->
+            <div class="card feature-card card-3d">
                 <div class="feature-icon-wrapper">
                     <i class="fa-solid fa-faucet-drip"></i>
                 </div>
-                <h3 class="feature-title">💧 Micro-Irrigation & Soil</h3>
-                <p>
-                    Optimize water usage with GGRC drip techniques, rainwater harvesting in farm ponds (Khet Talavadi), and black cotton & goradu soil management advice.
-                </p>
+                <h3 class="feature-title">💧 Smart Irrigation</h3>
+                <p>Learn efficient GGRC drip irrigation, sprinkler methods, and farm pond water conservation for water-scarce regions.</p>
             </div>
 
-            <!-- Feature Card 3 -->
-            <div class="card feature-card">
+            <!-- 4. Farming Knowledge -->
+            <div class="card feature-card card-3d">
                 <div class="feature-icon-wrapper">
-                    <i class="fa-solid fa-cloud-sun"></i>
+                    <i class="fa-solid fa-book-open-reader"></i>
                 </div>
-                <h3 class="feature-title">🌦️ 33 Districts Weather Advisory</h3>
-                <p>
-                    Access live atmospheric conditions and regional farming advisories tailored for all 33 districts of Gujarat from Ahmedabad and Rajkot to Surat and Bhuj.
-                </p>
+                <h3 class="feature-title">📚 Farming Knowledge</h3>
+                <p>Access practical agronomy tips, natural farming (Prakrutik Kheti), soil health cards, and bio-fertilizer recipes.</p>
+            </div>
+
+            <!-- 5. Farm Dashboard -->
+            <div class="card feature-card card-3d">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <h3 class="feature-title">📊 Farm Dashboard</h3>
+                <p>View clean visual summaries of your active crops, total area in acres, upcoming harvests, and localized advisory.</p>
+            </div>
+
+            <!-- 6. Secure Farmer Account -->
+            <div class="card feature-card card-3d">
+                <div class="feature-icon-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="feature-title">🔐 Secure Farmer Account</h3>
+                <p>Protected by 6-digit email OTP verification, ensuring your farm records and personal details are always safe.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Featured Gujarat Agricultural Crops Section -->
+<!-- Feature Showcase: Modern Split Section -->
 <section class="section section-alt">
     <div class="container">
+        <div class="grid-2" style="align-items: center;">
+            <!-- Left Mockup Card -->
+            <div>
+                <div class="card card-3d" style="background: linear-gradient(145deg, #FFFFFF, var(--light-green)); border: 2px solid var(--accent-light); padding: 2.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <span style="font-weight: 800; color: var(--primary-dark); font-size: 1.15rem;">
+                            <i class="fa-solid fa-chart-line" style="color: var(--accent); margin-right: 6px;"></i> Farm Performance
+                        </span>
+                        <span class="status-pill pill-green">Active Season</span>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text);">Cotton (કપાસ) • Saurashtra</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">12.5 Acres • Kharif</div>
+                            </div>
+                            <span class="status-pill pill-amber">Growing</span>
+                        </div>
+
+                        <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text);">Groundnut (મગફળી) • Junagadh</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">8.0 Acres • Kharif</div>
+                            </div>
+                            <span class="status-pill pill-blue">Ready</span>
+                        </div>
+
+                        <div style="background: var(--surface); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 700; color: var(--text);">Cumin (જીરું) • North Gujarat</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">5.0 Acres • Rabi</div>
+                            </div>
+                            <span class="status-pill pill-green">Planted</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Content -->
+            <div>
+                <span class="section-tag">Digitize Gujarat Agriculture</span>
+                <h2 class="section-title">Your Farm. Your Data. Your Decisions.</h2>
+                <p style="font-size: 1.05rem; line-height: 1.7; color: var(--text-muted); margin-bottom: 1.5rem;">
+                    AgriConnect replaces paper notebooks and manual guesswork with a streamlined, responsive portal that gives you actionable insight into every crop cycle.
+                </p>
+
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 2rem;">
+                    <li style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text);">
+                        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 1.15rem;"></i>
+                        <span>Track crops across planting, growing, and harvest stages</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text);">
+                        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 1.15rem;"></i>
+                        <span>Monitor farm area accurately in acres for input budgeting</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text);">
+                        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 1.15rem;"></i>
+                        <span>Manage planting dates and receive harvest countdowns</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 0.75rem; font-weight: 600; color: var(--text);">
+                        <i class="fa-solid fa-circle-check" style="color: var(--accent); font-size: 1.15rem;"></i>
+                        <span>View live weather forecasts for all 33 Gujarat districts</span>
+                    </li>
+                </ul>
+
+                <a href="{% url 'about' %}" class="btn btn-primary">
+                    <i class="fa-solid fa-arrow-right"></i> Learn More About AgriConnect
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Crops in Gujarat Section (Dynamic loop) -->
+<section class="section">
+    <div class="container">
         <div class="section-header">
-            <span class="section-tag">Gujarat Cash & Food Crops</span>
-            <h2 class="section-title">Key Agricultural Crops of Gujarat</h2>
+            <span class="section-tag">Key Crops</span>
+            <h2 class="section-title">Popular Crops in Gujarat</h2>
             <p class="section-subtitle">
-                Explore crop requirements, season schedules, and ideal soil types across Gujarat's agricultural zones.
+                Explore key agricultural staples grown across Saurashtra, North, Central, South Gujarat, and Kutch.
             </p>
         </div>
 
         <div class="crop-grid">
             {% for crop in featured_crops %}
-            <div class="crop-card">
-                <div class="crop-card-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-light));">
+            <div class="crop-card card-3d">
+                <div class="crop-card-header">
                     <i class="fa-solid {{ crop.icon }} crop-icon-large"></i>
                     <span class="crop-season-badge">{{ crop.season }}</span>
                 </div>
                 <div class="crop-card-body">
                     <h3 class="crop-card-title">{{ crop.name }}</h3>
-                    <span class="crop-card-type">{{ crop.type }} &bull; <small>{{ crop.region }}</small></span>
+                    <div class="crop-card-type">{{ crop.type }} &bull; <small>{{ crop.region }}</small></div>
                     <ul class="crop-specs">
-                        <li><i class="fa-solid fa-droplet"></i> <strong>Water:</strong> {{ crop.water }}</li>
-                        <li><i class="fa-solid fa-layer-group"></i> <strong>Soil:</strong> {{ crop.soil }}</li>
+                        <li><i class="fa-solid fa-droplet"></i> <span><strong>Water:</strong> {{ crop.water }}</span></li>
+                        <li><i class="fa-solid fa-layer-group"></i> <span><strong>Soil:</strong> {{ crop.soil }}</span></li>
                     </ul>
                     <p class="crop-description">
                         {{ crop.description }}
@@ -141,7 +352,7 @@
             {% endfor %}
         </div>
 
-        <div style="text-align: center; margin-top: 2.75rem;">
+        <div style="text-align: center; margin-top: 3rem;">
             <a href="{% url 'crops' %}" class="btn btn-primary btn-lg">
                 <i class="fa-solid fa-magnifying-glass"></i> Explore Full Gujarat Crop Catalog
             </a>
@@ -149,28 +360,82 @@
     </div>
 </section>
 
-<!-- Farming Quote Banner -->
-<section style="background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: var(--white); padding: 4rem 0; text-align: center;">
-    <div class="container" style="max-width: 820px;">
-        <i class="fa-solid fa-quote-left" style="font-size: 2.25rem; color: var(--accent); margin-bottom: 1.25rem; opacity: 0.85;"></i>
-        <h3 style="font-size: 1.75rem; font-style: italic; font-weight: 400; line-height: 1.5; color: var(--white); margin-bottom: 1rem;">
-            "The farmer is the foundation of Gujarat and India's prosperity. Cultivate the land with science, devotion, and unity."
-        </h3>
-        <p style="color: var(--light-green); font-weight: 600; font-size: 1rem;">— Sardar Vallabhbhai Patel, Gujarat</p>
+<!-- Gujarat Weather Preview Card -->
+<section class="section section-alt">
+    <div class="container" style="max-width: 960px;">
+        <div class="section-header" style="margin-bottom: 2.5rem;">
+            <span class="section-tag">Agro-Meteorology</span>
+            <h2 class="section-title">Weather for Gujarat Farmers</h2>
+            <p class="section-subtitle">
+                Real-time atmospheric data and farming suggestions for Gujarat's 33 districts.
+            </p>
+        </div>
+
+        <div class="card card-3d" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 2.5rem; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+                <div>
+                    <span style="font-size: 0.85rem; color: var(--accent-light); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                        <i class="fa-solid fa-location-dot"></i> Live Weather Preview
+                    </span>
+                    <h3 style="color: var(--white); font-size: 2rem; margin: 0.25rem 0;">Ahmedabad, Gujarat</h3>
+                    <p style="color: rgba(255, 255, 255, 0.8); margin-bottom: 0; font-size: 0.95rem;">Optimal field conditions for ongoing farming operations.</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 3rem; font-weight: 800; line-height: 1; font-family: var(--font-heading);">32°C</div>
+                    <div style="color: var(--accent-light); font-weight: 600;">Sunny / Clear Sky</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 1.5rem; margin-bottom: 1.5rem;" class="preview-metrics">
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--accent-light);"><i class="fa-solid fa-droplet"></i> Humidity</div>
+                    <strong style="font-size: 1.15rem; color: var(--white);">55%</strong>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--accent-light);"><i class="fa-solid fa-wind"></i> Wind</div>
+                    <strong style="font-size: 1.15rem; color: var(--white);">14 km/h</strong>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--accent-light);"><i class="fa-solid fa-cloud-rain"></i> Rain Risk</div>
+                    <strong style="font-size: 1.15rem; color: var(--white);">15%</strong>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8rem; color: var(--accent-light);"><i class="fa-solid fa-temperature-half"></i> Feels Like</div>
+                    <strong style="font-size: 1.15rem; color: var(--white);">34°C</strong>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a href="{% url 'weather' %}" class="btn btn-secondary" style="background: var(--white); color: var(--primary) !important;">
+                    <i class="fa-solid fa-cloud-sun"></i> Check All 33 Districts Live Weather
+                </a>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- Call to Action Banner -->
-<section class="section" style="text-align: center;">
-    <div class="container" style="max-width: 700px;">
-        <span class="section-tag">Start Digitizing Today</span>
+<!-- Farming Quote Banner -->
+<section style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 4.5rem 0; text-align: center;">
+    <div class="container" style="max-width: 820px;">
+        <i class="fa-solid fa-quote-left" style="font-size: 2.25rem; color: var(--accent); margin-bottom: 1.25rem; opacity: 0.85;"></i>
+        <h3 style="font-size: 1.85rem; font-style: italic; font-weight: 400; line-height: 1.5; color: var(--white); margin-bottom: 1.25rem;">
+            "The farmer is the foundation of Gujarat and India's prosperity. Cultivate the land with science, devotion, and unity."
+        </h3>
+        <p style="color: var(--accent-light); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.5px;">— Sardar Vallabhbhai Patel</p>
+    </div>
+</section>
+
+<!-- Final Call to Action -->
+<section class="section" style="text-align: center; background: radial-gradient(circle at 50% 50%, rgba(85, 185, 71, 0.1) 0%, transparent 70%);">
+    <div class="container" style="max-width: 720px;">
+        <span class="section-tag">Get Started Today</span>
         <h2 class="section-title">Ready to Empower Your Gujarat Farm?</h2>
-        <p class="section-subtitle" style="margin-bottom: 2rem;">
+        <p class="section-subtitle" style="margin-bottom: 2.25rem;">
             Join AgriConnect today. Create your free farmer account, register your crops, track acreage in acres, and access localized Gujarat weather and farming advisories.
         </p>
         {% if user.is_authenticated %}
         <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
-            <i class="fa-solid fa-gauge"></i> Access Your Dashboard
+            <i class="fa-solid fa-gauge"></i> Access Farmer Portal
         </a>
         {% else %}
         <a href="{% url 'register' %}" class="btn btn-primary btn-lg">

@@ -1,15 +1,15 @@
 {% extends 'farming/base.html' %}
 {% load static %}
 
-{% block title %}Farmer Profile Settings | AgriConnect{% endblock %}
+{% block title %}Farmer Profile Settings | AgriConnect Gujarat{% endblock %}
 
 {% block content %}
 <div class="dashboard-layout">
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div>
-            <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.85rem; padding-left: 0.5rem;">
-                Farmer Portal
+            <div style="font-size: 0.76rem; font-weight: 800; color: var(--text-light); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 1.25rem; padding-left: 0.5rem;">
+                Gujarat Farmer Portal
             </div>
             <ul class="sidebar-menu">
                 <li>
@@ -39,12 +39,12 @@
                 </li>
                 <li>
                     <a href="{% url 'profile' %}" class="sidebar-link active">
-                        <i class="fa-solid fa-user-pen"></i> Profile
+                        <i class="fa-solid fa-user-pen"></i> Farm Profile
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'logout' %}" class="sidebar-link" style="color: #DC2626;">
-                        <i class="fa-solid fa-arrow-right-from-bracket" style="color: #DC2626;"></i> Logout
+                        <i class="fa-solid fa-right-from-bracket" style="color: #DC2626;"></i> Logout
                     </a>
                 </li>
             </ul>
@@ -56,7 +56,9 @@
             </div>
             <div class="user-info">
                 <div class="user-name">{{ user.farmer_profile.full_name|default:user.username }}</div>
-                <div class="user-role">{{ user.farmer_profile.farm_location|default:"Farmer" }}</div>
+                <div class="user-role">
+                    {% if user.farmer_profile and user.farmer_profile.district %}{{ user.farmer_profile.district }}, Gujarat{% else %}Gujarat Farmer{% endif %}
+                </div>
             </div>
         </div>
     </aside>
@@ -65,52 +67,60 @@
     <section class="dashboard-content">
         <div class="dashboard-header">
             <div>
-                <h1>Farmer Profile Settings</h1>
-                <p style="margin-bottom: 0;">View and update your personal contact info and farm location.</p>
+                <h1 style="font-size: 2.15rem; color: var(--primary-dark); margin-bottom: 0.25rem;">Farmer Profile Settings</h1>
+                <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--text-muted);">View and update your personal contact info, Gujarat district, and farm location.</p>
             </div>
         </div>
 
-        <div class="grid-2" style="align-items: flex-start; max-width: 950px;">
+        <div class="grid-2" style="align-items: flex-start; max-width: 1040px;">
             <!-- Profile Overview Card -->
-            <div class="card" style="text-align: center; padding: 2.25rem 1.75rem;">
-                <div class="user-avatar" style="width: 76px; height: 76px; font-size: 2rem; font-weight: 800; margin: 0 auto 1rem;">
+            <div class="card card-3d" style="text-align: center; padding: 2.5rem 2rem;">
+                <div class="user-avatar" style="width: 84px; height: 84px; font-size: 2.25rem; font-weight: 800; margin: 0 auto 1.25rem; box-shadow: var(--shadow-md);">
                     {{ user.username|slice:":1"|upper }}
                 </div>
-                <h2 style="font-size: 1.45rem; color: var(--primary); margin-bottom: 0.2rem;">
+                <h2 style="font-size: 1.6rem; color: var(--primary-dark); margin-bottom: 0.2rem;">
                     {{ profile.full_name|default:user.username }}
                 </h2>
-                <div style="color: var(--primary-light); font-weight: 600; font-size: 0.9rem; margin-bottom: 1.25rem;">
+                <div style="color: var(--primary); font-weight: 700; font-size: 0.92rem; margin-bottom: 1.5rem;">
                     @{{ user.username }}
                 </div>
 
-                <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.15rem 0; margin-bottom: 1.25rem; text-align: left; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+                <div style="border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1.25rem 0; margin-bottom: 1.5rem; text-align: left; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.9rem;">
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-envelope" style="color: var(--primary-light); width: 18px;"></i> Email:</span>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-envelope" style="color: var(--primary); width: 20px;"></i> Email:</span>
                         <strong style="color: var(--text);">{{ user.email }}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="color: var(--primary-light); width: 18px;"></i> Phone:</span>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="color: var(--primary); width: 20px;"></i> Phone:</span>
                         <strong style="color: var(--text);">{{ profile.phone|default:"Not specified" }}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary-light); width: 18px;"></i> Location:</span>
-                        <strong style="color: var(--text);">{{ profile.get_location_display|default:profile.district|default:"Gujarat, India" }}</strong>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary); width: 20px;"></i> Location:</span>
+                        <strong style="color: var(--primary);">
+                            {% if profile and profile.get_location_display %}
+                                {{ profile.get_location_display }}
+                            {% elif profile and profile.district %}
+                                {{ profile.district }}, Gujarat
+                            {% else %}
+                                Gujarat, India
+                            {% endif %}
+                        </strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-calendar-check" style="color: var(--primary-light); width: 18px;"></i> Joined:</span>
-                        <strong style="color: var(--text);">{{ user.date_joined|date:"d-m-Y" }}</strong>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-calendar-check" style="color: var(--primary); width: 20px;"></i> Member Since:</span>
+                        <strong style="color: var(--text);">{{ user.date_joined|date:"d M Y" }}</strong>
                     </div>
                 </div>
 
-                <div style="background: var(--light-green); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.82rem; color: var(--primary);">
-                    <i class="fa-solid fa-shield-halved" style="margin-right: 4px;"></i> Gujarat Farmer Account verified & encrypted.
+                <div style="background: var(--light-green); padding: 0.85rem 1rem; border-radius: var(--radius-md); font-size: 0.84rem; color: var(--primary-dark); border: 1px solid var(--accent-light);">
+                    <i class="fa-solid fa-shield-halved" style="margin-right: 4px; color: var(--primary);"></i> Gujarat Farmer Account verified & encrypted.
                 </div>
             </div>
 
             <!-- Edit Profile Form Card -->
-            <div class="card" style="padding: 2.25rem 2rem;">
-                <h3 style="font-size: 1.3rem; color: var(--primary); margin-bottom: 1.25rem;">
-                    <i class="fa-solid fa-user-pen" style="color: var(--primary-light); margin-right: 6px;"></i> Edit Gujarat Profile
+            <div class="card card-3d" style="padding: 2.5rem 2.25rem;">
+                <h3 style="font-size: 1.4rem; color: var(--primary-dark); margin-bottom: 1.5rem;">
+                    <i class="fa-solid fa-user-pen" style="color: var(--accent); margin-right: 6px;"></i> Edit Gujarat Profile
                 </h3>
 
                 <form method="post" action="{% url 'profile' %}">
@@ -168,7 +178,7 @@
                         {% endif %}
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.75rem;">
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
                         <i class="fa-solid fa-floppy-disk"></i> Save Gujarat Profile Changes
                     </button>
                 </form>

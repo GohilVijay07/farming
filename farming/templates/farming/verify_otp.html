@@ -1,29 +1,29 @@
 {% extends 'farming/base.html' %}
 {% load static %}
 
-{% block title %}Verify Email OTP | AgriConnect — Smart Farming Management System{% endblock %}
+{% block title %}Verify Email OTP | AgriConnect Gujarat{% endblock %}
 
 {% block content %}
-<section class="section" style="padding: 3.5rem 0; min-height: calc(100vh - 200px); display: flex; align-items: center;">
-    <div class="container" style="max-width: 520px;">
-        <div class="card otp-card" style="padding: 2.75rem 2.25rem; text-align: center; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+<section class="section" style="padding: 4rem 0; min-height: calc(100vh - 200px); display: flex; align-items: center;">
+    <div class="container" style="max-width: 540px;">
+        <div class="card card-3d" style="padding: 3rem 2.5rem; text-align: center; border-radius: var(--radius-xl); box-shadow: var(--shadow-xl);">
             
             <!-- Icon & Heading -->
-            <div style="width: 64px; height: 64px; border-radius: var(--radius-full); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 1.25rem;">
+            <div style="width: 68px; height: 68px; border-radius: var(--radius-full); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.35rem;">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
 
-            <h2 style="font-size: 1.85rem; color: var(--primary); margin-bottom: 0.5rem; font-weight: 800;">
+            <h1 style="font-size: 2.1rem; color: var(--primary-dark); margin-bottom: 0.5rem; font-weight: 800;">
                 Verify Your Email
-            </h2>
+            </h1>
             
-            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem; line-height: 1.6;">
                 We've sent a 6-digit OTP code to your registered email address:<br>
-                <strong style="color: var(--primary); font-size: 1rem;">{{ masked_email }}</strong>
+                <strong style="color: var(--primary-dark); font-size: 1.05rem;">{{ masked_email }}</strong>
             </p>
 
-            <!-- Expiration Countdown Badge (3 Minutes) -->
-            <div id="otpTimerWrapper" class="otp-timer-badge" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--light-green); border: 1px solid var(--accent-light); padding: 0.5rem 1rem; border-radius: var(--radius-full); margin-bottom: 1.75rem; font-size: 0.9rem; font-weight: 600; color: var(--primary);">
+            <!-- Expiration Countdown Badge -->
+            <div id="otpTimerWrapper" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--light-green); border: 1px solid var(--accent-light); padding: 0.55rem 1.25rem; border-radius: var(--radius-full); margin-bottom: 2rem; font-size: 0.92rem; font-weight: 600; color: var(--primary);">
                 <i class="fa-regular fa-clock" id="timerIcon"></i>
                 <span id="otpCountdownText">OTP expires in <strong id="otpTimerDisplay">03:00</strong></span>
             </div>
@@ -34,7 +34,7 @@
                 <input type="hidden" name="otp" id="otp_full_code">
 
                 <!-- 6 Individual Digit Inputs -->
-                <div class="otp-inputs-grid" id="otpInputsGrid" style="display: flex; justify-content: center; gap: 0.6rem; margin-bottom: 1.75rem;">
+                <div class="otp-inputs-grid" id="otpInputsGrid">
                     <input type="text" name="otp_1" id="otp_1" class="otp-box-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autofocus aria-label="Digit 1">
                     <input type="text" name="otp_2" id="otp_2" class="otp-box-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Digit 2">
                     <input type="text" name="otp_3" id="otp_3" class="otp-box-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Digit 3">
@@ -43,40 +43,40 @@
                     <input type="text" name="otp_6" id="otp_6" class="otp-box-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="Digit 6">
                 </div>
 
-                <div id="otpErrorMessage" class="form-error" style="display: none; margin-bottom: 1rem; text-align: center;"></div>
+                <div id="otpErrorMessage" class="form-error" style="display: none; margin-bottom: 1.25rem; text-align: center;"></div>
 
                 <!-- Submit Button -->
-                <button type="submit" id="verifyOtpBtn" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-circle-check"></i> Verify OTP
+                <button type="submit" id="verifyOtpBtn" class="btn btn-primary btn-lg" style="width: 100%; font-weight: 700;">
+                    <i class="fa-solid fa-circle-check"></i> Verify & Access Portal
                 </button>
             </form>
 
             <!-- Resend OTP Section -->
-            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.75rem;">
+            <div style="margin-top: 2.25rem; padding-top: 1.75rem; border-top: 1px solid var(--border);">
+                <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 0.85rem;">
                     Didn't receive the OTP?
                 </p>
 
                 <div style="display: flex; justify-content: center; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                    <a href="{% url 'resend_otp' %}" id="resendOtpBtn" class="btn btn-outline btn-sm" style="font-weight: 600;">
+                    <a href="{% url 'resend_otp' %}" id="resendOtpBtn" class="btn btn-secondary btn-sm">
                         <i class="fa-solid fa-arrows-rotate"></i> <span id="resendBtnText">Resend OTP</span>
                     </a>
                 </div>
 
-                <div id="resendCooldownNotice" style="font-size: 0.8rem; color: var(--text-light); margin-top: 0.5rem; display: none;">
+                <div id="resendCooldownNotice" style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.65rem; display: none;">
                     You can request a new OTP after the cooldown timer expires.
                 </div>
             </div>
 
             <!-- Security & Hints -->
-            <div style="margin-top: 1.5rem; font-size: 0.82rem; color: var(--text-light); line-height: 1.4;">
+            <div style="margin-top: 1.75rem; font-size: 0.84rem; color: var(--text-light); line-height: 1.5;">
                 <i class="fa-solid fa-lock" style="margin-right: 4px; color: var(--accent);"></i>
                 For security, OTP expires in 3 minutes and allows a maximum of 5 attempts.
             </div>
 
-            <!-- Back to Login / Register -->
-            <div style="margin-top: 1.25rem; font-size: 0.875rem;">
-                <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 600;">
+            <!-- Back to Login -->
+            <div style="margin-top: 1.5rem; font-size: 0.92rem;">
+                <a href="{% url 'login' %}" style="color: var(--primary); font-weight: 700;">
                     <i class="fa-solid fa-arrow-left"></i> Back to Login
                 </a>
             </div>
@@ -84,191 +84,4 @@
         </div>
     </div>
 </section>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Standalone OTP Interactive Handler (Guarantees live timer execution & input navigation)
-(function() {
-    function startOtpScript() {
-        const otpForm = document.getElementById('otpForm');
-        if (!otpForm) return;
-
-        const otpInputs = Array.from(document.querySelectorAll('.otp-box-input'));
-        const fullOtpInput = document.getElementById('otp_full_code');
-        const verifyBtn = document.getElementById('verifyOtpBtn');
-        const otpErrorMsg = document.getElementById('otpErrorMessage');
-
-        const timerDisplay = document.getElementById('otpTimerDisplay');
-        const timerWrapper = document.getElementById('otpTimerWrapper');
-        const timerText = document.getElementById('otpCountdownText');
-
-        const resendBtn = document.getElementById('resendOtpBtn');
-        const resendBtnText = document.getElementById('resendBtnText');
-        const resendNotice = document.getElementById('resendCooldownNotice');
-
-        // 1. Auto Focus First Box
-        if (otpInputs.length > 0) {
-            setTimeout(function() {
-                otpInputs[0].focus();
-            }, 100);
-        }
-
-        // Helper: Collect OTP string
-        function getCombinedOtp() {
-            return otpInputs.map(function(inp) { return inp.value.trim(); }).join('');
-        }
-
-        function syncState() {
-            otpInputs.forEach(function(inp) {
-                if (inp.value.length === 1) {
-                    inp.classList.add('filled');
-                } else {
-                    inp.classList.remove('filled');
-                }
-            });
-            const code = getCombinedOtp();
-            if (fullOtpInput) fullOtpInput.value = code;
-            return code;
-        }
-
-        // 2. Input Navigation Handlers
-        otpInputs.forEach(function(input, idx) {
-            input.addEventListener('keydown', function(e) {
-                if (e.key === 'Backspace') {
-                    if (input.value === '') {
-                        if (idx > 0) {
-                            otpInputs[idx - 1].focus();
-                            otpInputs[idx - 1].value = '';
-                            syncState();
-                            e.preventDefault();
-                        }
-                    } else {
-                        input.value = '';
-                        syncState();
-                        e.preventDefault();
-                    }
-                } else if (e.key === 'ArrowLeft' && idx > 0) {
-                    otpInputs[idx - 1].focus();
-                    e.preventDefault();
-                } else if (e.key === 'ArrowRight' && idx < otpInputs.length - 1) {
-                    otpInputs[idx + 1].focus();
-                    e.preventDefault();
-                }
-            });
-
-            input.addEventListener('input', function(e) {
-                const digits = input.value.replace(/[^0-9]/g, '');
-                if (digits.length > 0) {
-                    input.value = digits.charAt(digits.length - 1);
-                    syncState();
-                    if (idx < otpInputs.length - 1) {
-                        otpInputs[idx + 1].focus();
-                    }
-                } else {
-                    input.value = '';
-                    syncState();
-                }
-            });
-
-            input.addEventListener('paste', function(e) {
-                e.preventDefault();
-                const clipboardData = (e.clipboardData || window.clipboardData).getData('text');
-                const cleanDigits = clipboardData.replace(/[^0-9]/g, '').slice(0, 6);
-                if (cleanDigits.length > 0) {
-                    cleanDigits.split('').forEach(function(char, i) {
-                        if (otpInputs[i]) otpInputs[i].value = char;
-                    });
-                    syncState();
-                    const nextFocus = Math.min(cleanDigits.length, otpInputs.length - 1);
-                    otpInputs[nextFocus].focus();
-                }
-            });
-        });
-
-        // 3. Form Validation
-        otpForm.addEventListener('submit', function(e) {
-            const combined = syncState();
-            if (combined.length !== 6 || !/^\d{6}$/.test(combined)) {
-                e.preventDefault();
-                if (otpErrorMsg) {
-                    otpErrorMsg.textContent = 'Please enter all 6 digits of your verification code.';
-                    otpErrorMsg.style.display = 'block';
-                }
-                for (let i = 0; i < otpInputs.length; i++) {
-                    if (!otpInputs[i].value) {
-                        otpInputs[i].focus();
-                        break;
-                    }
-                }
-            }
-        });
-
-        // 4. Live 3-Minute Expiry Countdown
-        let remaining = parseInt(otpForm.getAttribute('data-remaining') || '180', 10);
-        const isServerExpired = otpForm.getAttribute('data-expired') === 'true';
-
-        function formatDisplay(sec) {
-            const m = Math.floor(sec / 60);
-            const s = sec % 60;
-            return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-        }
-
-        function triggerExpiredUI() {
-            if (timerWrapper) timerWrapper.classList.add('expired');
-            if (timerText) {
-                timerText.innerHTML = '<strong style="color: #DC2626;">OTP Expired. Please request a new OTP.</strong>';
-            }
-            if (verifyBtn) {
-                verifyBtn.disabled = true;
-                verifyBtn.classList.add('btn-disabled');
-            }
-            otpInputs.forEach(function(inp) { inp.disabled = true; });
-        }
-
-        if (isServerExpired || remaining <= 0) {
-            triggerExpiredUI();
-        } else {
-            if (timerDisplay) timerDisplay.textContent = formatDisplay(remaining);
-            const clockInterval = setInterval(function() {
-                remaining--;
-                if (remaining <= 0) {
-                    clearInterval(clockInterval);
-                    triggerExpiredUI();
-                } else {
-                    if (timerDisplay) timerDisplay.textContent = formatDisplay(remaining);
-                }
-            }, 1000);
-        }
-
-        // 5. Live 60-Second Resend Cooldown Countdown
-        let cooldown = parseInt(otpForm.getAttribute('data-cooldown') || '0', 10);
-        if (resendBtn && cooldown > 0) {
-            resendBtn.classList.add('btn-disabled');
-            resendBtn.style.pointerEvents = 'none';
-            if (resendNotice) resendNotice.style.display = 'block';
-            if (resendBtnText) resendBtnText.textContent = 'Resend OTP in ' + cooldown + 's';
-
-            const cdInterval = setInterval(function() {
-                cooldown--;
-                if (cooldown <= 0) {
-                    clearInterval(cdInterval);
-                    resendBtn.classList.remove('btn-disabled');
-                    resendBtn.style.pointerEvents = 'auto';
-                    if (resendBtnText) resendBtnText.textContent = 'Resend OTP';
-                    if (resendNotice) resendNotice.style.display = 'none';
-                } else {
-                    if (resendBtnText) resendBtnText.textContent = 'Resend OTP in ' + cooldown + 's';
-                }
-            }, 1000);
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', startOtpScript);
-    } else {
-        startOtpScript();
-    }
-})();
-</script>
 {% endblock %}
