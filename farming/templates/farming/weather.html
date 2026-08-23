@@ -12,7 +12,7 @@
         </span>
         <h1 style="color: var(--white); font-size: 2.85rem; margin-bottom: 0.75rem; font-weight: 800;">Gujarat Live Weather</h1>
         <p style="color: var(--accent-light); max-width: 700px; margin: 0 auto; font-size: 1.1rem; line-height: 1.6;">
-            Real-time atmospheric insights and agricultural advisories for farmers across all 33 districts of Gujarat.
+            Real-time atmospheric insights and agricultural advisories for farmers across all 33 districts and talukas of Gujarat.
         </p>
     </div>
 </div>
@@ -20,38 +20,53 @@
 <section class="section">
     <div class="container">
         <!-- Gujarat Location Dropdown & Search Bar -->
-        <div style="max-width: 840px; margin: 0 auto 3rem;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;" class="weather-search-row">
+        <div style="max-width: 920px; margin: 0 auto 3rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 1rem; margin-bottom: 1.25rem;" class="weather-search-row">
                 <!-- Gujarat District Dropdown Selector -->
                 <div>
                     <label for="weatherDistrictSelect" class="form-label" style="color: var(--primary-dark);">
-                        <i class="fa-solid fa-location-dot" style="margin-right: 4px; color: var(--accent);"></i> Select Gujarat District:
+                        <i class="fa-solid fa-location-dot" style="margin-right: 4px; color: var(--accent);"></i> District:
                     </label>
                     <select id="weatherDistrictSelect" class="form-select" style="font-weight: 600;">
                         {% for district in gujarat_districts %}
                         <option value="{{ district }}" {% if district|lower == selected_district|lower or district|lower == selected_city|lower %}selected{% endif %}>
-                            📍 {{ district }}, Gujarat
+                            📍 {{ district }}
                         </option>
                         {% endfor %}
                     </select>
                 </div>
 
+                <!-- Gujarat Taluka Selector -->
+                <div>
+                    <label for="weatherTalukaInput" class="form-label" style="color: var(--primary-dark);">
+                        <i class="fa-solid fa-location-arrow" style="margin-right: 4px; color: var(--accent);"></i> Taluka (Optional):
+                    </label>
+                    <input
+                        type="text"
+                        id="weatherTalukaInput"
+                        class="form-control"
+                        placeholder="e.g. Gondal, Sanand, Bardoli..."
+                        list="weather_taluka_datalist"
+                    >
+                    <datalist id="weather_taluka_datalist"></datalist>
+                </div>
+
                 <!-- Custom Gujarat Town/City Search Input -->
                 <div>
                     <label for="weatherCityInput" class="form-label" style="color: var(--primary-dark);">
-                        <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px; color: var(--accent);"></i> Or Type City / Taluka:
+                        <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px; color: var(--accent);"></i> Village / Search:
                     </label>
-                    <form id="weatherSearchForm" style="display: flex; gap: 0.65rem;">
+                    <form id="weatherSearchForm" style="display: flex; gap: 0.5rem;">
                         <input
                             type="text"
                             id="weatherCityInput"
                             class="form-control"
-                            placeholder="e.g. Rajkot, Surat, Bhuj, Anand..."
+                            placeholder="Village / City in Gujarat..."
                             value="{{ city_query|default:'Ahmedabad' }}"
                         >
-                        <button type="submit" class="btn btn-primary" style="flex-shrink: 0; padding: 0 1.5rem;">
+                        <button type="submit" class="btn btn-primary" style="flex-shrink: 0; padding: 0 1.25rem;">
                             <i class="fa-solid fa-search"></i>
-                            <span class="d-none-mobile">Search</span>
+                            <span class="d-none-mobile">Check</span>
                         </button>
                     </form>
                 </div>
@@ -76,13 +91,13 @@
         </div>
 
         <!-- Dynamic Error Banner -->
-        <div id="weatherErrorBox" style="display: none; max-width: 840px; margin: 0 auto 2rem; background: #FEF2F2; border: 1px solid #F87171; border-left: 5px solid #DC2626; border-radius: var(--radius-md); padding: 1.15rem 1.35rem; color: #991B1B; box-shadow: var(--shadow-sm);">
+        <div id="weatherErrorBox" style="display: none; max-width: 920px; margin: 0 auto 2rem; background: #FEF2F2; border: 1px solid #F87171; border-left: 5px solid #DC2626; border-radius: var(--radius-md); padding: 1.15rem 1.35rem; color: #991B1B; box-shadow: var(--shadow-sm);">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;">
                 <div style="display: flex; align-items: center; gap: 0.85rem;">
                     <i class="fa-solid fa-circle-exclamation" style="font-size: 1.45rem; color: #DC2626;"></i>
                     <div>
                         <strong style="display: block; font-size: 0.96rem;" id="weatherErrorTitle">Gujarat Only Notice</strong>
-                        <span style="font-size: 0.88rem;" id="weatherErrorMessage">AgriConnect provides weather information only for Gujarat.</span>
+                        <span style="font-size: 0.88rem;" id="weatherErrorMessage">Please select a valid Gujarat location.</span>
                     </div>
                 </div>
                 <button type="button" onclick="document.getElementById('weatherErrorBox').style.display='none';" style="background: none; border: none; font-size: 1.2rem; color: #991B1B; cursor: pointer;">
@@ -92,9 +107,9 @@
         </div>
 
         <!-- Weather Display Container with Smooth Loading Overlay -->
-        <div id="weatherDisplayContainer" style="position: relative; min-height: 400px;">
+        <div id="weatherDisplayContainer" style="position: relative; min-height: 400px; max-width: 920px; margin: 0 auto;">
             <!-- Loading Spinner Overlay -->
-            <div id="weatherLoadingOverlay" style="display: none; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(6px); z-index: 20; border-radius: var(--radius-xl); align-items: center; justify-content: center; flex-direction: column; gap: 1rem;">
+            <div id="weatherLoadingOverlay" style="display: none; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); z-index: 20; border-radius: var(--radius-xl); align-items: center; justify-content: center; flex-direction: column; gap: 1rem;">
                 <div style="width: 52px; height: 52px; border: 4px solid #E2E8F0; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 0.75s linear infinite;"></div>
                 <span style="font-weight: 700; color: var(--primary-dark); font-size: 1.05rem;">Fetching live Gujarat weather data...</span>
             </div>
@@ -105,8 +120,8 @@
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.6rem; color: var(--accent-light); font-size: 1rem; margin-bottom: 0.4rem;">
                             <i class="fa-solid fa-map-location-dot" style="color: var(--accent);"></i>
-                            <span id="weatherCityDisplay" style="font-weight: 700; font-size: 1.25rem; color: var(--white);">
-                                {{ initial_weather.city|default:"Ahmedabad" }}, Gujarat, India
+                            <span id="weatherCityDisplay" style="font-weight: 700; font-size: 1.35rem; color: var(--white);">
+                                {{ initial_weather.location_display|default:"Ahmedabad, Gujarat (India)" }}
                             </span>
                             <span style="font-size: 0.76rem; background: rgba(255,255,255,0.2); padding: 0.2rem 0.65rem; border-radius: var(--radius-full); font-weight: 700;">
                                 Live
@@ -131,62 +146,62 @@
                     </div>
                 </div>
 
-                <!-- 8 Real Atmospheric Metric Boxes Grid -->
-                <div class="weather-metrics-grid" style="grid-template-columns: repeat(4, 1fr); gap: 1.15rem;" id="weatherMetricsGrid">
+                <!-- Atmospheric Metric Boxes Grid (Including Sunrise & Sunset) -->
+                <div class="weather-metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem;" id="weatherMetricsGrid">
                     <!-- Feels Like -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-temperature-half" style="font-size: 1.4rem; color: var(--primary); margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Feels Like</span>
-                        <strong id="weatherFeelsLikeDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.feels_like|default:"34" }}°C</strong>
+                        <i class="fa-solid fa-temperature-half" style="font-size: 1.35rem; color: var(--primary); margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Feels Like</span>
+                        <strong id="weatherFeelsLikeDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.feels_like|default:"34" }}°C</strong>
                     </div>
 
                     <!-- Humidity -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-droplet" style="font-size: 1.4rem; color: #0284C7; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Humidity</span>
-                        <strong id="weatherHumidityDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.humidity|default:"55" }}%</strong>
+                        <i class="fa-solid fa-droplet" style="font-size: 1.35rem; color: #0284C7; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Humidity</span>
+                        <strong id="weatherHumidityDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.humidity|default:"55" }}%</strong>
                     </div>
 
                     <!-- Wind Speed -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-wind" style="font-size: 1.4rem; color: #64748B; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Wind Speed</span>
-                        <strong id="weatherWindDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.wind_speed|default:"14" }} km/h <span id="weatherWindDirDisplay" style="font-size: 0.8rem; font-weight: 500; opacity: 0.85;">{{ initial_weather.wind_dir|default:"" }}</span></strong>
+                        <i class="fa-solid fa-wind" style="font-size: 1.35rem; color: #64748B; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Wind Speed</span>
+                        <strong id="weatherWindDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.wind_speed|default:"14" }} km/h</strong>
                     </div>
 
                     <!-- Rain Chance -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-cloud-rain" style="font-size: 1.4rem; color: #3B82F6; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Rain Chance</span>
-                        <strong id="weatherRainDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.forecast.0.rain_chance|default:"15" }}%</strong>
+                        <i class="fa-solid fa-cloud-rain" style="font-size: 1.35rem; color: #3B82F6; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Rain Chance</span>
+                        <strong id="weatherRainDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.forecast.0.rain_chance|default:"15" }}%</strong>
                     </div>
 
                     <!-- Pressure -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-gauge-high" style="font-size: 1.4rem; color: #8B5CF6; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Pressure</span>
-                        <strong id="weatherPressureDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.pressure|default:"1008" }} mb</strong>
+                        <i class="fa-solid fa-gauge-high" style="font-size: 1.35rem; color: #8B5CF6; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Pressure</span>
+                        <strong id="weatherPressureDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.pressure|default:"1008" }} mb</strong>
                     </div>
 
                     <!-- Visibility -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-eye" style="font-size: 1.4rem; color: #10B981; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Visibility</span>
-                        <strong id="weatherVisibilityDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.visibility|default:"10.0" }} km</strong>
+                        <i class="fa-solid fa-eye" style="font-size: 1.35rem; color: #10B981; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Visibility</span>
+                        <strong id="weatherVisibilityDisplay" style="font-size: 1.2rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.visibility|default:"10.0" }} km</strong>
                     </div>
 
-                    <!-- UV Index -->
+                    <!-- Sunrise -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-sun" style="font-size: 1.4rem; color: var(--gold); margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">UV Index</span>
-                        <strong id="weatherUvDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.uv_index|default:"6.0" }}</strong>
+                        <i class="fa-solid fa-mountain-sun" style="font-size: 1.35rem; color: #D97706; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Sunrise</span>
+                        <strong id="weatherSunriseDisplay" style="font-size: 1.15rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.sunrise|default:"06:15 AM" }}</strong>
                     </div>
 
-                    <!-- Precipitation -->
+                    <!-- Sunset -->
                     <div class="weather-metric-box">
-                        <i class="fa-solid fa-cloud-showers-water" style="font-size: 1.4rem; color: #0284C7; margin-bottom: 0.35rem;"></i>
-                        <span style="display: block; font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Precipitation</span>
-                        <strong id="weatherPrecipDisplay" style="font-size: 1.25rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.precipitation|default:"0.0" }} mm</strong>
+                        <i class="fa-solid fa-sun-plant-wilt" style="font-size: 1.35rem; color: #EA580C; margin-bottom: 0.3rem;"></i>
+                        <span style="display: block; font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">Sunset</span>
+                        <strong id="weatherSunsetDisplay" style="font-size: 1.15rem; color: var(--primary-dark); font-weight: 800;">{{ initial_weather.sunset|default:"06:45 PM" }}</strong>
                     </div>
                 </div>
             </div>
@@ -219,60 +234,52 @@
                                 <i class="fa-solid {{ item.icon }}"></i>
                             </div>
                             <div>
-                                <strong style="display: block; font-size: 0.98rem; color: var(--primary-dark); margin-bottom: 0.25rem;">{{ item.title }}</strong>
+                                <strong style="display: block; font-size: 0.96rem; color: var(--primary-dark); margin-bottom: 0.25rem;">{{ item.title }}</strong>
                                 <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55;">{{ item.text }}</p>
                             </div>
                         </div>
                         {% endfor %}
-                    {% else %}
-                        <div class="advisory-item-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem; display: flex; gap: 0.85rem; align-items: flex-start; box-shadow: var(--shadow-sm);">
-                            <i class="fa-solid fa-droplet" style="color: var(--primary); font-size: 1.35rem; margin-top: 3px;"></i>
-                            <div>
-                                <strong style="display: block; font-size: 0.98rem; color: var(--primary-dark); margin-bottom: 0.25rem;">Irrigation & Field Management</strong>
-                                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.55;">Monitor soil moisture and maintain scheduled drip irrigation during morning hours.</p>
-                            </div>
-                        </div>
                     {% endif %}
                 </div>
 
-                <!-- Agricultural Disclaimer -->
-                <div style="background: var(--light-green); border: 1px solid var(--accent-light); border-radius: var(--radius-md); padding: 0.85rem 1.15rem; font-size: 0.84rem; color: var(--primary-dark); display: flex; align-items: center; gap: 0.65rem;">
-                    <i class="fa-solid fa-circle-info" style="color: var(--primary); font-size: 1.1rem; flex-shrink: 0;"></i>
+                <!-- Disclaimer Notice -->
+                <div style="background: var(--cream); border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    <i class="fa-solid fa-circle-info" style="color: var(--primary); margin-right: 4px;"></i>
                     <span id="weatherAdviceDisclaimer">
-                        {{ initial_weather.farming_advice.disclaimer|default:"General informational suggestions based on atmospheric data. Always inspect your local field, crop maturity, and soil moisture before taking critical agronomic actions." }}
+                        {{ initial_weather.farming_advice.disclaimer|default:"These are automated general informational suggestions based on atmospheric data. Please evaluate local field conditions, crop maturity, and soil moisture before performing critical farm operations." }}
                     </span>
                 </div>
             </div>
 
-            <!-- 5-Day Extended Weather Forecast -->
-            <div>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <h2 style="font-size: 1.55rem; color: var(--primary-dark); margin: 0; font-weight: 800;">
-                        <i class="fa-solid fa-calendar-week" style="color: var(--accent); margin-right: 6px;"></i> 5-Day Gujarat Agricultural Forecast
+            <!-- 5-Day Gujarat Forecast Section -->
+            <div style="margin-bottom: 3rem;">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.85rem; color: var(--primary-dark); margin-bottom: 0.4rem; font-weight: 800;">
+                        5-Day Agro-Meteorological Forecast
                     </h2>
-                    <span style="font-size: 0.88rem; color: var(--text-muted); font-weight: 600;">
-                        Live WeatherAPI.com Projections
-                    </span>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;">
+                        Plan irrigation schedules, fertilizer top-dressing, and harvest timelines in advance.
+                    </p>
                 </div>
 
-                <div id="weatherForecastGrid" class="forecast-grid">
+                <div class="grid-5" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem;" id="weatherForecastGrid">
                     {% if initial_weather.forecast %}
                         {% for day in initial_weather.forecast %}
-                        <div class="card forecast-day-card card-3d" style="text-align: center; padding: 1.5rem 1rem;">
+                        <div class="card forecast-day-card" style="text-align: center; padding: 1.35rem 0.85rem; box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-radius: var(--radius-lg);">
                             <div style="font-weight: 800; color: var(--primary-dark); font-size: 1.05rem; margin-bottom: 0.2rem;">{{ day.day_name }}</div>
-                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.65rem;">{{ day.formatted_date }}</div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem;">{{ day.formatted_date|default:day.date }}</div>
                             
-                            <img src="{{ day.icon }}" alt="{{ day.condition }}" style="width: 54px; height: 54px; margin: 0 auto 0.5rem; display: block;">
+                            <img src="{{ day.icon }}" alt="{{ day.condition }}" style="width: 52px; height: 52px; margin: 0 auto 0.4rem; display: block;">
                             
-                            <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">
+                            <div style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.35rem;">
                                 {{ day.max_temp }}° <span style="font-size: 0.95rem; font-weight: 600; color: var(--text-muted);">/ {{ day.min_temp }}°C</span>
                             </div>
                             
-                            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; min-height: 2.2em; display: flex; align-items: center; justify-content: center;">
+                            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 0.5rem; min-height: 2.2em; display: flex; align-items: center; justify-content: center;">
                                 {{ day.condition }}
                             </div>
                             
-                            <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.78rem; border-top: 1px solid var(--border); padding-top: 0.65rem; text-align: left;">
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.78rem; border-top: 1px solid var(--border); padding-top: 0.5rem; text-align: left;">
                                 <div style="display: flex; justify-content: space-between;">
                                     <span style="color: var(--text-muted);"><i class="fa-solid fa-cloud-rain" style="color: #0284C7;"></i> Rain:</span>
                                     <strong style="color: {% if day.rain_chance > 40 %}#DC2626{% else %}var(--primary){% endif %};">{{ day.rain_chance }}%</strong>
@@ -282,7 +289,7 @@
                                     <strong>{{ day.precip_mm }} mm</strong>
                                 </div>
                                 <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--text-muted);"><i class="fa-solid fa-wind" style="color: #64748B;"></i> Wind:</span>
+                                    <span style="color: var(--text-muted);"><i class="fa-solid fa-wind" style="color: #6B7280;"></i> Wind:</span>
                                     <strong>{{ day.max_wind_kph }} km/h</strong>
                                 </div>
                             </div>
@@ -294,10 +301,4 @@
         </div>
     </div>
 </section>
-
-<style>
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-</style>
 {% endblock %}

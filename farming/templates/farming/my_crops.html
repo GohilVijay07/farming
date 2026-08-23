@@ -18,7 +18,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'my_crops' %}" class="sidebar-link {% if active_page == 'my_crops' %}active{% endif %}">
+                    <a href="{% url 'my_crops' %}" class="sidebar-link active">
                         <i class="fa-solid fa-wheat-awn"></i> My Crops
                     </a>
                 </li>
@@ -119,9 +119,10 @@
                 <table class="custom-table">
                     <thead>
                         <tr>
-                            <th>Crop</th>
+                            <th>Crop Name</th>
+                            <th>Location</th>
                             <th>Season</th>
-                            <th>Area</th>
+                            <th>Area (Acres)</th>
                             <th>Planting Date</th>
                             <th>Expected Harvest</th>
                             <th>Status</th>
@@ -141,6 +142,12 @@
                                 {% endif %}
                             </td>
                             <td>
+                                <span style="font-size: 0.86rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-location-dot" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                    {{ crop.get_location_display }}
+                                </span>
+                            </td>
+                            <td>
                                 <span style="font-size: 0.9rem; font-weight: 600; color: var(--text);">{{ crop.season }}</span>
                             </td>
                             <td>
@@ -153,11 +160,11 @@
                                 <div style="font-size: 0.9rem;">{{ crop.expected_harvest_date|date:"M d, Y" }}</div>
                             </td>
                             <td>
-                                {% if crop.status == 'Planted' %}
-                                <span class="status-pill pill-blue">Planted</span>
+                                {% if crop.status == 'Planted' or crop.status == 'Planned' %}
+                                <span class="status-pill pill-blue">{{ crop.status }}</span>
                                 {% elif crop.status == 'Growing' %}
                                 <span class="status-pill pill-amber">Growing</span>
-                                {% elif crop.status == 'Ready to Harvest' %}
+                                {% elif crop.status == 'Ready to Harvest' or crop.status == 'Ready for Harvest' %}
                                 <span class="status-pill pill-green">Ready to Harvest</span>
                                 {% else %}
                                 <span class="status-pill pill-gray">Harvested</span>

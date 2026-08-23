@@ -1,12 +1,34 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import FarmerProfile, Crop, ContactMessage, FarmingTip, GUJARAT_DISTRICTS, GUJARAT_REGIONS
+from .models import (
+    District,
+    Taluka,
+    Village,
+    FarmerProfile,
+    Crop,
+    ContactMessage,
+    FarmingTip,
+    GUJARAT_DISTRICTS,
+    GUJARAT_REGIONS
+)
+
+
+def get_district_choices():
+    """Returns dynamic district choices from database with fallback."""
+    try:
+        districts = District.objects.all().order_by('name')
+        if districts.exists():
+            return [(d.name, d.name) for d in districts]
+    except Exception:
+        pass
+    return GUJARAT_DISTRICTS
 
 
 class FarmerRegistrationForm(forms.Form):
     """
     Form for registering a new Gujarat farmer account and associated profile.
+    Supports Gujarat -> District -> Taluka -> Village location hierarchy.
     """
     full_name = forms.CharField(
         max_length=150,
@@ -54,10 +76,10 @@ class FarmerRegistrationForm(forms.Form):
     )
     taluka = forms.CharField(
         max_length=100,
-        required=False,
+        required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Taluka / Tehsil (e.g., Gondal, Sanand, Jetpur)',
+            'placeholder': 'Select or type Taluka / Tehsil',
             'id': 'reg_taluka'
         })
     )
@@ -66,7 +88,7 @@ class FarmerRegistrationForm(forms.Form):
         required=True,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Village / Farm Name (e.g., Moti Marad Farm)',
+            'placeholder': 'Village / Gram Panchayat / Farm Name',
             'id': 'reg_farm_location'
         })
     )
@@ -113,7 +135,7 @@ class FarmerRegistrationForm(forms.Form):
         return cleaned_data
 
     def save(self):
-        """Creates both User and FarmerProfile objects in database."""
+        """Creates User and FarmerProfile objects with proper Foreign Key links."""
         data = self.cleaned_data
         user = User.objects.create_user(
             username=data['username'],
@@ -122,14 +144,33 @@ class FarmerRegistrationForm(forms.Form):
             first_name=data['full_name'].split()[0] if data['full_name'] else '',
             last_name=' '.join(data['full_name'].split()[1:]) if len(data['full_name'].split()) > 1 else ''
         )
+
+        dist_name = data.get('district', '').strip()
+        taluka_name = data.get('taluka', '').strip()
+        village_name = data.get('farm_location', '').strip()
+
+        district_obj = District.objects.filter(name__iexact=dist_name).first()
+        taluka_obj = None
+        if district_obj and taluka_name:
+            taluka_obj = Taluka.objects.filter(name__iexact=taluka_name, district=district_obj).first()
+        elif taluka_name:
+            taluka_obj = Taluka.objects.filter(name__iexact=taluka_name).first()
+
+        village_obj = None
+        if taluka_obj and village_name:
+            village_obj = Village.objects.filter(name__iexact=village_name, taluka=taluka_obj).first()
+
         FarmerProfile.objects.create(
             user=user,
             full_name=data['full_name'],
             phone=data['phone'],
             state='Gujarat',
-            district=data['district'],
-            taluka=data.get('taluka', ''),
-            farm_location=data['farm_location']
+            district=dist_name,
+            taluka=taluka_name,
+            farm_location=village_name,
+            district_ref=district_obj,
+            taluka_ref=taluka_obj,
+            village_ref=village_obj
         )
         return user
 
@@ -168,7 +209,7 @@ class FarmerLoginForm(forms.Form):
 
 class FarmerProfileUpdateForm(forms.Form):
     """
-    Form for updating Gujarat farmer profile details.
+    Form for updating Gujarat farmer profile details with District -> Taluka -> Village support.
     """
     full_name = forms.CharField(
         max_length=150,
@@ -225,7 +266,7 @@ class FarmerProfileUpdateForm(forms.Form):
         return email
 
     def save(self):
-        """Updates User and FarmerProfile objects."""
+        """Updates User and FarmerProfile objects with proper Foreign Key links."""
         data = self.cleaned_data
         self.user.email = data['email']
         parts = data['full_name'].split()
@@ -240,6 +281,27 @@ class FarmerProfileUpdateForm(forms.Form):
         profile.district = data['district']
         profile.taluka = data.get('taluka', '')
         profile.farm_location = data['farm_location']
+
+        # Synchronize Foreign Key references
+        dist_name = data['district'].strip()
+        taluka_name = data.get('taluka', '').strip()
+        village_name = data.get('farm_location', '').strip()
+
+        district_obj = District.objects.filter(name__iexact=dist_name).first()
+        profile.district_ref = district_obj
+
+        if district_obj and taluka_name:
+            profile.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name, district=district_obj).first()
+        elif taluka_name:
+            profile.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name).first()
+        else:
+            profile.taluka_ref = None
+
+        if profile.taluka_ref and village_name:
+            profile.village_ref = Village.objects.filter(name__iexact=village_name, taluka=profile.taluka_ref).first()
+        else:
+            profile.village_ref = None
+
         profile.save()
         return profile
 
@@ -247,6 +309,7 @@ class FarmerProfileUpdateForm(forms.Form):
 class CropForm(forms.ModelForm):
     """
     ModelForm for Adding and Editing Gujarat Crop information.
+    Auto-prefills location from logged-in farmer's profile when adding new crops.
     """
     class Meta:
         model = Crop
@@ -259,12 +322,15 @@ class CropForm(forms.ModelForm):
             'planting_date',
             'expected_harvest_date',
             'status',
+            'district',
+            'taluka',
+            'village',
             'notes',
         ]
         widgets = {
             'crop_name': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'e.g., Cotton (કપાસ), Groundnut (મગફળી), Wheat (ઘઉં), Cumin (જીરું)',
+                'placeholder': 'e.g., Cotton (કપાસ), Groundnut (મગફળી), Bhalia Wheat (ઘઉં), Cumin (જીરું)',
                 'id': 'crop_name'
             }),
             'crop_type': forms.Select(attrs={
@@ -300,6 +366,20 @@ class CropForm(forms.ModelForm):
                 'class': 'form-select',
                 'id': 'status'
             }),
+            'district': forms.Select(choices=GUJARAT_DISTRICTS, attrs={
+                'class': 'form-select',
+                'id': 'crop_district'
+            }),
+            'taluka': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Taluka / Tehsil (e.g. Gondal, Sanand)',
+                'id': 'crop_taluka'
+            }),
+            'village': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Village / Farm Name',
+                'id': 'crop_village'
+            }),
             'notes': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 4,
@@ -307,6 +387,19 @@ class CropForm(forms.ModelForm):
                 'id': 'notes'
             }),
         }
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Prefill location from user profile if creating a new crop
+        if user and (not self.instance or not self.instance.pk):
+            profile = getattr(user, 'farmer_profile', None)
+            if profile:
+                if profile.district and not self.initial.get('district'):
+                    self.initial['district'] = profile.district
+                if profile.taluka and not self.initial.get('taluka'):
+                    self.initial['taluka'] = profile.taluka
+                if profile.farm_location and not self.initial.get('village'):
+                    self.initial['village'] = profile.farm_location
 
     def clean_farm_area(self):
         farm_area = self.cleaned_data.get('farm_area')
@@ -324,6 +417,25 @@ class CropForm(forms.ModelForm):
                 self.add_error('expected_harvest_date', "Expected harvest date cannot be earlier than planting date.")
 
         return cleaned_data
+
+    def save(self, commit=True):
+        crop = super().save(commit=False)
+        dist_name = crop.district.strip() if crop.district else ''
+        taluka_name = crop.taluka.strip() if crop.taluka else ''
+        village_name = crop.village.strip() if crop.village else ''
+
+        if dist_name:
+            crop.district_ref = District.objects.filter(name__iexact=dist_name).first()
+        if crop.district_ref and taluka_name:
+            crop.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name, district=crop.district_ref).first()
+        elif taluka_name:
+            crop.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name).first()
+        if crop.taluka_ref and village_name:
+            crop.village_ref = Village.objects.filter(name__iexact=village_name, taluka=crop.taluka_ref).first()
+
+        if commit:
+            crop.save()
+        return crop
 
 
 class ContactForm(forms.ModelForm):
@@ -480,6 +592,20 @@ class AdminUserEditForm(forms.Form):
         profile.district = data.get('district', 'Ahmedabad')
         profile.taluka = data.get('taluka', '')
         profile.farm_location = data.get('farm_location', '')
+
+        dist_name = profile.district.strip()
+        taluka_name = profile.taluka.strip()
+        village_name = profile.farm_location.strip()
+
+        district_obj = District.objects.filter(name__iexact=dist_name).first()
+        profile.district_ref = district_obj
+        if district_obj and taluka_name:
+            profile.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name, district=district_obj).first()
+        elif taluka_name:
+            profile.taluka_ref = Taluka.objects.filter(name__iexact=taluka_name).first()
+        if profile.taluka_ref and village_name:
+            profile.village_ref = Village.objects.filter(name__iexact=village_name, taluka=profile.taluka_ref).first()
+
         profile.save()
         return self.target_user
 
@@ -500,6 +626,9 @@ class AdminCropEditForm(forms.ModelForm):
             'planting_date',
             'expected_harvest_date',
             'status',
+            'district',
+            'taluka',
+            'village',
             'notes',
         ]
         widgets = {
@@ -512,6 +641,9 @@ class AdminCropEditForm(forms.ModelForm):
             'planting_date': forms.DateInput(attrs={'class': 'admin-form-control', 'type': 'date', 'id': 'planting_date'}),
             'expected_harvest_date': forms.DateInput(attrs={'class': 'admin-form-control', 'type': 'date', 'id': 'expected_harvest_date'}),
             'status': forms.Select(attrs={'class': 'admin-form-select', 'id': 'status'}),
+            'district': forms.Select(choices=GUJARAT_DISTRICTS, attrs={'class': 'admin-form-select', 'id': 'crop_district'}),
+            'taluka': forms.TextInput(attrs={'class': 'admin-form-control', 'id': 'crop_taluka'}),
+            'village': forms.TextInput(attrs={'class': 'admin-form-control', 'id': 'crop_village'}),
             'notes': forms.Textarea(attrs={'class': 'admin-form-control', 'rows': 4, 'id': 'notes'}),
         }
 
@@ -591,7 +723,6 @@ class ForgotPasswordRequestForm(forms.Form):
 class PasswordResetConfirmForm(forms.Form):
     """
     Form for creating a new password after successful OTP verification.
-    Enforces minimum 8 characters, mismatch validation, and Django password rules.
     """
     new_password = forms.CharField(
         required=True,
@@ -638,4 +769,3 @@ class PasswordResetConfirmForm(forms.Form):
                         self.add_error('new_password', error)
 
         return cleaned_data
-

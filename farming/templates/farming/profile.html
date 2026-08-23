@@ -68,7 +68,7 @@
         <div class="dashboard-header">
             <div>
                 <h1 style="font-size: 2.15rem; color: var(--primary-dark); margin-bottom: 0.25rem;">Farmer Profile Settings</h1>
-                <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--text-muted);">View and update your personal contact info, Gujarat district, and farm location.</p>
+                <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--text-muted);">View and update your personal contact info, Gujarat district, taluka, and village.</p>
             </div>
         </div>
 
@@ -91,11 +91,23 @@
                         <strong style="color: var(--text);">{{ user.email }}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="color: var(--primary); width: 20px;"></i> Phone:</span>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-phone" style="color: var(--primary); width: 20px;"></i> Mobile:</span>
                         <strong style="color: var(--text);">{{ profile.phone|default:"Not specified" }}</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary); width: 20px;"></i> Location:</span>
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-map-location-dot" style="color: var(--primary); width: 20px;"></i> District:</span>
+                        <strong style="color: var(--primary);">{{ profile.district|default:"Ahmedabad" }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-arrow" style="color: var(--primary); width: 20px;"></i> Taluka:</span>
+                        <strong style="color: var(--text);">{{ profile.taluka|default:"-" }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-house-chimney-window" style="color: var(--primary); width: 20px;"></i> Village:</span>
+                        <strong style="color: var(--text);">{{ profile.farm_location|default:"-" }}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--text-muted);"><i class="fa-solid fa-location-dot" style="color: var(--primary); width: 20px;"></i> Full Location:</span>
                         <strong style="color: var(--primary);">
                             {% if profile and profile.get_location_display %}
                                 {{ profile.get_location_display }}
@@ -144,7 +156,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="profile_phone" class="form-label">Phone Number <span style="color: #DC2626;">*</span></label>
+                            <label for="profile_phone" class="form-label">Mobile Number <span style="color: #DC2626;">*</span></label>
                             {{ form.phone }}
                             {% if form.phone.errors %}
                             <div class="form-error">{{ form.phone.errors.0 }}</div>
@@ -152,33 +164,41 @@
                         </div>
                     </div>
 
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label for="profile_district" class="form-label">Gujarat District <span style="color: #DC2626;">*</span></label>
-                            {{ form.district }}
-                            {% if form.district.errors %}
-                            <div class="form-error">{{ form.district.errors.0 }}</div>
-                            {% endif %}
+                    <div style="background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.35rem 1.25rem; margin: 1rem 0 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; color: var(--primary-dark); font-weight: 700; font-size: 0.95rem;">
+                            <i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> Gujarat Location Details
                         </div>
 
-                        <div class="form-group">
-                            <label for="profile_taluka" class="form-label">Taluka / Tehsil <span style="color: #DC2626;">*</span></label>
-                            {{ form.taluka }}
-                            {% if form.taluka.errors %}
-                            <div class="form-error">{{ form.taluka.errors.0 }}</div>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="profile_district" class="form-label">District (જિલ્લો) <span style="color: #DC2626;">*</span></label>
+                                {{ form.district }}
+                                {% if form.district.errors %}
+                                <div class="form-error">{{ form.district.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="profile_taluka" class="form-label">Taluka / Tehsil (તાલુકો) <span style="color: #DC2626;">*</span></label>
+                                {{ form.taluka }}
+                                <datalist id="profile_taluka_datalist"></datalist>
+                                {% if form.taluka.errors %}
+                                <div class="form-error">{{ form.taluka.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="profile_farm_location" class="form-label">Village / Gram Panchayat (ગામ) <span style="color: #DC2626;">*</span></label>
+                            {{ form.farm_location }}
+                            <datalist id="profile_village_datalist"></datalist>
+                            {% if form.farm_location.errors %}
+                            <div class="form-error">{{ form.farm_location.errors.0 }}</div>
                             {% endif %}
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="profile_farm_location" class="form-label">Village / Farm Location <span style="color: #DC2626;">*</span></label>
-                        {{ form.farm_location }}
-                        {% if form.farm_location.errors %}
-                        <div class="form-error">{{ form.farm_location.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;">
                         <i class="fa-solid fa-floppy-disk"></i> Save Gujarat Profile Changes
                     </button>
                 </form>

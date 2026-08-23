@@ -13,17 +13,17 @@
             </div>
             <ul class="sidebar-menu">
                 <li>
-                    <a href="{% url 'dashboard' %}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+                    <a href="{% url 'dashboard' %}" class="sidebar-link active">
                         <i class="fa-solid fa-gauge-high"></i> Dashboard
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'my_crops' %}" class="sidebar-link {% if active_page == 'my_crops' %}active{% endif %}">
+                    <a href="{% url 'my_crops' %}" class="sidebar-link">
                         <i class="fa-solid fa-wheat-awn"></i> My Crops
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'add_crop' %}" class="sidebar-link {% if active_page == 'add_crop' %}active{% endif %}">
+                    <a href="{% url 'add_crop' %}" class="sidebar-link">
                         <i class="fa-solid fa-circle-plus"></i> Add Crop
                     </a>
                 </li>
@@ -38,7 +38,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'profile' %}" class="sidebar-link {% if active_page == 'profile' %}active{% endif %}">
+                    <a href="{% url 'profile' %}" class="sidebar-link">
                         <i class="fa-solid fa-user-pen"></i> Farm Profile
                     </a>
                 </li>
@@ -67,12 +67,14 @@
     <section class="dashboard-content">
         <div class="dashboard-header">
             <div>
-                <h1 style="font-size: 2.15rem; color: var(--primary-dark); margin-bottom: 0.25rem;">
-                    Welcome, {{ user.farmer_profile.full_name|default:user.username }}!
-                </h1>
-                <p style="margin-bottom: 0; font-size: 0.95rem;">
-                    <i class="fa-solid fa-location-dot" style="color: var(--accent);"></i>
-                    <strong style="color: var(--primary);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <h1 style="font-size: 2.15rem; color: var(--primary-dark); margin: 0;">
+                        Welcome, {{ user.farmer_profile.full_name|default:user.username }}!
+                    </h1>
+                </div>
+                <p style="margin-bottom: 0; font-size: 0.95rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-location-dot" style="color: var(--primary);"></i>
+                    <strong style="color: var(--primary-dark);">
                         {% if user.farmer_profile and user.farmer_profile.get_location_display %}
                             {{ user.farmer_profile.get_location_display }}
                         {% elif user.farmer_profile and user.farmer_profile.district %}
@@ -81,7 +83,7 @@
                             Gujarat, India
                         {% endif %}
                     </strong>
-                    &bull; Live summary of your Gujarat farming operations.
+                    &bull; Real-time management of your Gujarat agricultural operations.
                 </p>
             </div>
             <div>
@@ -91,7 +93,7 @@
             </div>
         </div>
 
-        <!-- 4 Statistics Cards -->
+        <!-- 4 Live Database Statistics Cards -->
         <div class="stats-grid" style="margin-bottom: 2.5rem;">
             <div class="card card-3d" style="display: flex; align-items: center; gap: 1.25rem; padding: 1.75rem 1.5rem;">
                 <div style="width: 54px; height: 54px; border-radius: var(--radius-md); background: var(--light-green); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0;">
@@ -138,8 +140,8 @@
         <div class="card card-3d" style="margin-bottom: 2.5rem; padding: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
                 <div>
-                    <h2 style="font-size: 1.45rem; color: var(--primary-dark); margin-bottom: 0.2rem;">Recent Crop Plantings</h2>
-                    <p style="font-size: 0.9rem; margin-bottom: 0; color: var(--text-muted);">Your latest crop registrations and current lifecycle status.</p>
+                    <h2 style="font-size: 1.45rem; color: var(--primary-dark); margin-bottom: 0.2rem;">Recent Crops</h2>
+                    <p style="font-size: 0.9rem; margin-bottom: 0; color: var(--text-muted);">Your latest crop registrations, Gujarat farm location, and status.</p>
                 </div>
                 <a href="{% url 'my_crops' %}" class="btn btn-secondary btn-sm">
                     View All Crops <i class="fa-solid fa-arrow-right"></i>
@@ -152,10 +154,10 @@
                     <thead>
                         <tr>
                             <th>Crop Name</th>
-                            <th>Crop Type</th>
-                            <th>Season</th>
-                            <th>Area (Acres)</th>
-                            <th>Planting Date</th>
+                            <th>Location</th>
+                            <th>Farm Area</th>
+                            <th>Sowing Date</th>
+                            <th>Expected Harvest</th>
                             <th>Status</th>
                             <th>Action</th>
                         </tr>
@@ -164,18 +166,24 @@
                         {% for crop in recent_crops %}
                         <tr>
                             <td>
-                                <strong style="color: var(--primary-dark);">{{ crop.crop_name }}</strong>
+                                <strong style="color: var(--primary-dark); font-size: 1.02rem;">{{ crop.crop_name }}</strong>
+                                <div style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">{{ crop.crop_type }}</div>
                             </td>
-                            <td>{{ crop.crop_type }}</td>
-                            <td>{{ crop.season }}</td>
-                            <td><strong>{{ crop.farm_area }}</strong></td>
-                            <td>{{ crop.planting_date|date:"M d, Y" }}</td>
                             <td>
-                                {% if crop.status == 'Planted' %}
-                                <span class="status-pill pill-blue">Planted</span>
+                                <span style="font-size: 0.86rem; color: var(--text-muted);">
+                                    <i class="fa-solid fa-location-dot" style="color: var(--accent); font-size: 0.8rem;"></i>
+                                    {{ crop.get_location_display }}
+                                </span>
+                            </td>
+                            <td><strong>{{ crop.farm_area }}</strong> <span style="font-size: 0.8rem; color: var(--text-muted);">Acres</span></td>
+                            <td>{{ crop.planting_date|date:"M d, Y" }}</td>
+                            <td>{{ crop.expected_harvest_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if crop.status == 'Planted' or crop.status == 'Planned' %}
+                                <span class="status-pill pill-blue">{{ crop.status }}</span>
                                 {% elif crop.status == 'Growing' %}
                                 <span class="status-pill pill-amber">Growing</span>
-                                {% elif crop.status == 'Ready to Harvest' %}
+                                {% elif crop.status == 'Ready to Harvest' or crop.status == 'Ready for Harvest' %}
                                 <span class="status-pill pill-green">Ready to Harvest</span>
                                 {% else %}
                                 <span class="status-pill pill-gray">Harvested</span>
@@ -212,40 +220,76 @@
             {% endif %}
         </div>
 
+        <!-- Gujarat Farming Overview (District-Wise Farmers Statistics) -->
+        {% if district_farmer_stats %}
+        <div class="card card-3d" style="margin-bottom: 2.5rem; padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <h2 style="font-size: 1.35rem; color: var(--primary-dark); margin-bottom: 0.2rem;">
+                        <i class="fa-solid fa-map-location-dot" style="color: var(--primary); margin-right: 6px;"></i> Gujarat Farming Overview
+                    </h2>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0;">
+                        Registered farmer distribution across Gujarat agricultural districts (real database data).
+                    </p>
+                </div>
+                <span class="badge" style="background: var(--light-green); color: var(--primary-dark); font-weight: 700;">
+                    33 Gujarat Districts
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                {% for dist in district_farmer_stats %}
+                <div style="background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem 1.15rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: var(--primary-dark); font-size: 0.95rem; display: block;">{{ dist.district|default:"Gujarat" }}</strong>
+                        <span style="font-size: 0.78rem; color: var(--text-muted);">Gujarat District</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">{{ dist.farmer_count }}</span>
+                        <span style="font-size: 0.76rem; color: var(--text-muted); display: block;">Farmers</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Quick Help & Weather Row -->
         <div class="grid-2">
             <div class="card card-3d" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--white); padding: 2rem;">
                 <h3 style="color: var(--white); font-size: 1.35rem; margin-bottom: 0.4rem;">
-                    <i class="fa-solid fa-cloud-sun" style="color: var(--accent); margin-right: 6px;"></i> Local Weather Snapshot
+                    <i class="fa-solid fa-cloud-sun" style="color: var(--accent); margin-right: 6px;"></i> Gujarat Weather Advisory
                 </h3>
                 <p style="color: var(--accent-light); font-size: 0.9rem; margin-bottom: 1.25rem;">
-                    Stay updated with local atmospheric conditions before scheduling field watering or fertilizer spray.
+                    Real-time atmospheric insights, rainfall forecast, and irrigation advice tailored for your Gujarat district.
                 </p>
                 <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.12); padding: 1rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.25rem;">
                     <div>
-                        <div style="font-size: 2rem; font-weight: 800; color: var(--white); font-family: var(--font-heading);">32°C</div>
-                        <div style="font-size: 0.85rem; color: var(--accent-light); font-weight: 600;">Sunny • Optimal Spray Window</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: var(--white); font-family: var(--font-heading);">
+                            {{ user.farmer_profile.district|default:"Ahmedabad" }}
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--accent-light); font-weight: 600;">Live Weather & 5-Day Forecast Available</div>
                     </div>
-                    <i class="fa-solid fa-sun" style="font-size: 2.5rem; color: var(--gold);"></i>
+                    <i class="fa-solid fa-cloud-sun-rain" style="font-size: 2.3rem; color: var(--gold);"></i>
                 </div>
                 <a href="{% url 'weather' %}" class="btn btn-secondary btn-sm" style="width: 100%;">
-                    Open Full Weather Advisory <i class="fa-solid fa-arrow-right"></i>
+                    Check Gujarat Weather Advisory <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
 
             <div class="card card-3d" style="padding: 2rem;">
                 <h3 style="font-size: 1.35rem; margin-bottom: 0.4rem; color: var(--primary-dark);">
-                    <i class="fa-solid fa-lightbulb" style="color: var(--accent); margin-right: 6px;"></i> Quick Agronomy Tip
+                    <i class="fa-solid fa-lightbulb" style="color: var(--accent); margin-right: 6px;"></i> Gujarat Agronomy Tips
                 </h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
-                    Rotate cereal grain crops with nitrogen-fixing pulses to naturally replenish soil organic carbon and curb pest lifecycles.
+                    Curated agricultural practices for Saurashtra, North, Central, and South Gujarat crops.
                 </p>
                 <div style="background: var(--light-green); border-left: 4px solid var(--primary); padding: 0.85rem 1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 1.25rem;">
                     <div style="font-weight: 700; font-size: 0.9rem; color: var(--primary-dark);">Micro-Irrigation Tip</div>
-                    <div style="font-size: 0.84rem; color: var(--text-muted);">Watering at early morning cuts soil evaporation losses by up to 35%.</div>
+                    <div style="font-size: 0.84rem; color: var(--text-muted);">GGRC Drip irrigation saves 40-60% water while maximizing cotton and groundnut yields.</div>
                 </div>
                 <a href="{% url 'farming_tips' %}" class="btn btn-outline btn-sm" style="width: 100%;">
-                    Browse All Agronomy Tips <i class="fa-solid fa-arrow-right"></i>
+                    Browse Gujarat Agronomy Tips <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
         </div>

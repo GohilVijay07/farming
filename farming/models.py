@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.text import slugify
 
 # All 33 Districts of Gujarat, India
 GUJARAT_DISTRICTS = [
@@ -48,6 +49,82 @@ GUJARAT_REGIONS = [
 ]
 
 
+# ==============================================================================
+# GUJARAT LOCATION DATABASE MODELS (District -> Taluka -> Village)
+# ==============================================================================
+
+class District(models.Model):
+    """
+    Model representing one of Gujarat's 33 official administrative districts.
+    """
+    name = models.CharField(max_length=100, unique=True, verbose_name="District Name")
+    region = models.CharField(max_length=100, blank=True, default='', verbose_name="Agro-Climatic Region")
+    slug = models.SlugField(max_length=120, blank=True, null=True, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "District"
+        verbose_name_plural = "Districts (Gujarat)"
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class Taluka(models.Model):
+    """
+    Model representing an administrative Taluka / Tehsil under a Gujarat District.
+    """
+    district = models.ForeignKey(District, on_delete=models.CASCADE, related_name='talukas', verbose_name="District")
+    name = models.CharField(max_length=100, verbose_name="Taluka Name")
+    slug = models.SlugField(max_length=120, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Taluka"
+        verbose_name_plural = "Talukas (Gujarat)"
+        unique_together = ('name', 'district')
+        ordering = ['district__name', 'name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.district.name}-{self.name}")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.name} ({self.district.name})"
+
+
+class Village(models.Model):
+    """
+    Model representing a Village / Gram Panchayat under a Gujarat Taluka.
+    """
+    taluka = models.ForeignKey(Taluka, on_delete=models.CASCADE, related_name='villages', verbose_name="Taluka")
+    name = models.CharField(max_length=150, verbose_name="Village Name")
+    pincode = models.CharField(max_length=10, blank=True, default='', verbose_name="Pincode (Optional)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Village"
+        verbose_name_plural = "Villages (Gujarat)"
+        ordering = ['taluka__name', 'name']
+
+    def __str__(self):
+        return f"{self.name}, {self.taluka.name}"
+
+
+# ==============================================================================
+# FARMER & CROP CORE MODELS
+# ==============================================================================
+
 class FarmerProfile(models.Model):
     """
     Model representing extended profile details for a registered Gujarat farmer.
@@ -57,9 +134,17 @@ class FarmerProfile(models.Model):
     full_name = models.CharField(max_length=150, verbose_name="Full Name")
     phone = models.CharField(max_length=20, verbose_name="Phone Number")
     state = models.CharField(max_length=50, default='Gujarat', verbose_name="State")
+    
+    # Text-based fields for backwards compatibility and easy form fallback
     district = models.CharField(max_length=100, choices=GUJARAT_DISTRICTS, default='Ahmedabad', verbose_name="Gujarat District")
     taluka = models.CharField(max_length=100, blank=True, default='', verbose_name="Taluka / Block")
     farm_location = models.CharField(max_length=255, blank=True, default='', verbose_name="Village / Farm Location")
+    
+    # Foreign key references to Gujarat Location Models
+    district_ref = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='farmers', verbose_name="District Reference")
+    taluka_ref = models.ForeignKey(Taluka, on_delete=models.SET_NULL, null=True, blank=True, related_name='farmers', verbose_name="Taluka Reference")
+    village_ref = models.ForeignKey(Village, on_delete=models.SET_NULL, null=True, blank=True, related_name='farmers', verbose_name="Village Reference")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -69,14 +154,18 @@ class FarmerProfile(models.Model):
         ordering = ['-created_at']
 
     def get_location_display(self):
-        """Returns clean formatted Gujarat location string."""
+        """Returns clean formatted Gujarat location string (Village, Taluka, District, Gujarat)."""
         parts = []
-        if self.farm_location:
-            parts.append(self.farm_location)
-        if self.taluka:
-            parts.append(self.taluka)
-        if self.district:
-            parts.append(self.district)
+        village_str = self.village_ref.name if self.village_ref else self.farm_location
+        taluka_str = self.taluka_ref.name if self.taluka_ref else self.taluka
+        district_str = self.district_ref.name if self.district_ref else self.district
+        
+        if village_str and village_str.strip():
+            parts.append(village_str.strip())
+        if taluka_str and taluka_str.strip():
+            parts.append(taluka_str.strip())
+        if district_str and district_str.strip():
+            parts.append(district_str.strip())
         parts.append(self.state or 'Gujarat')
         return ", ".join(parts)
 
@@ -121,10 +210,20 @@ class Crop(models.Model):
     region = models.CharField(max_length=100, choices=GUJARAT_REGIONS, default='Saurashtra', verbose_name="Gujarat Agricultural Region")
     season = models.CharField(max_length=50, choices=SEASON_CHOICES, default='Kharif (Monsoon)', verbose_name="Season")
     farm_area = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Farm Area (Acres)", help_text="Total land area in acres")
-    planting_date = models.DateField(verbose_name="Planting Date")
+    planting_date = models.DateField(verbose_name="Planting / Sowing Date")
     expected_harvest_date = models.DateField(verbose_name="Expected Harvest Date")
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Planted', verbose_name="Status")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes & Instructions")
+
+    # Gujarat Location Specific Fields
+    district = models.CharField(max_length=100, blank=True, default='', verbose_name="District")
+    taluka = models.CharField(max_length=100, blank=True, default='', verbose_name="Taluka")
+    village = models.CharField(max_length=150, blank=True, default='', verbose_name="Village / Farm Name")
+
+    district_ref = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True, related_name='crops', verbose_name="District Reference")
+    taluka_ref = models.ForeignKey(Taluka, on_delete=models.SET_NULL, null=True, blank=True, related_name='crops', verbose_name="Taluka Reference")
+    village_ref = models.ForeignKey(Village, on_delete=models.SET_NULL, null=True, blank=True, related_name='crops', verbose_name="Village Reference")
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -133,20 +232,38 @@ class Crop(models.Model):
         verbose_name_plural = "Crops"
         ordering = ['-created_at']
 
+    def get_location_display(self):
+        """Returns clean formatted Gujarat location string for this crop."""
+        parts = []
+        v = self.village_ref.name if self.village_ref else self.village
+        t = self.taluka_ref.name if self.taluka_ref else self.taluka
+        d = self.district_ref.name if self.district_ref else self.district
+        if v and v.strip(): parts.append(v.strip())
+        if t and t.strip(): parts.append(t.strip())
+        if d and d.strip(): parts.append(d.strip())
+        parts.append('Gujarat')
+        return ", ".join(parts) if parts else "Gujarat, India"
+
     def __str__(self):
         return f"{self.crop_name} - {self.status} ({self.farmer.username})"
-
 
 
 class ContactMessage(models.Model):
     """
     Model representing messages submitted through the website Contact Us page.
     """
+    STATUS_CHOICES = [
+        ('Unread', 'Unread'),
+        ('Read', 'Read'),
+        ('Replied', 'Replied'),
+    ]
+
     name = models.CharField(max_length=150, verbose_name="Your Name")
     email = models.EmailField(verbose_name="Email Address")
     subject = models.CharField(max_length=200, verbose_name="Subject")
     message = models.TextField(verbose_name="Message Content")
     is_read = models.BooleanField(default=False, verbose_name="Is Read")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Unread', verbose_name="Message Status")
     read_at = models.DateTimeField(blank=True, null=True, verbose_name="Read At")
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -156,8 +273,7 @@ class ContactMessage(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        status = "Read" if self.is_read else "Unread"
-        return f"{self.name} - {self.subject} [{status}] ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+        return f"{self.name} - {self.subject} [{self.status}] ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
 
 
 class FarmingTip(models.Model):
@@ -165,20 +281,20 @@ class FarmingTip(models.Model):
     Model representing Gujarat farming tips and best practices manageable by Administrators.
     """
     CATEGORY_CHOICES = [
-        ('Soil Preparation', 'Soil Preparation'),
-        ('Irrigation', 'Irrigation & Drip Technology'),
-        ('Water Management', 'Water Conservation & Management'),
-        ('Fertilizer', 'Fertilizer & Soil Nutrition'),
-        ('Pest Control', 'Pest & Disease Control'),
-        ('Crop Rotation', 'Crop Rotation'),
-        ('Organic Farming', 'Organic Farming (Prakrutik Kheti)'),
-        ('Monsoon Farming', 'Monsoon Farming (Kharif Season)'),
-        ('Rabi Farming', 'Winter Farming (Rabi Season)'),
-        ('Kharif Farming', 'Kharif Crops Management'),
+        ('Crop Management', '🌾 Crop Management'),
+        ('Irrigation', '💧 Irrigation & Drip Technology'),
+        ('Soil Management', '🌱 Soil Management & Health Cards'),
+        ('Monsoon Farming', '🌧️ Monsoon Farming (Kharif Season)'),
+        ('Summer Farming', '☀️ Summer Farming (Zaid Season)'),
+        ('Winter Farming', '❄️ Winter Farming (Rabi Season)'),
+        ('Pest Management', '🐛 Pest & Disease Management'),
+        ('Harvesting', '🌾 Harvesting & Storage'),
+        ('Micro Irrigation', '💧 Micro Irrigation (GGRC Drip & Sprinkler)'),
+        ('Organic Farming', '🌿 Organic Farming (Prakrutik Kheti)'),
     ]
 
     title = models.CharField(max_length=200, verbose_name="Tip Title")
-    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='Soil Preparation', verbose_name="Category")
+    category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, default='Crop Management', verbose_name="Category")
     description = models.TextField(verbose_name="Tip Description")
     level = models.CharField(max_length=50, default='Essential', verbose_name="Importance / Badge Level")
     icon = models.CharField(max_length=50, default='fa-seedling', verbose_name="FontAwesome Icon Class")
@@ -237,32 +353,24 @@ class EmailVerificationOTP(models.Model):
 
     @staticmethod
     def generate_otp_code():
-        """
-        Generates a cryptographically secure 6-digit numeric OTP.
-        """
+        """Generates a cryptographically secure 6-digit numeric OTP."""
         import secrets
         return f"{secrets.randbelow(1000000):06d}"
 
     def set_otp(self, raw_otp):
-        """
-        Hashes and stores the OTP securely using Django's password hasher.
-        """
+        """Hashes and stores the OTP securely using Django's password hasher."""
         from django.contrib.auth.hashers import make_password
         self.otp_hash = make_password(str(raw_otp).strip())
 
     def check_otp(self, raw_otp):
-        """
-        Validates raw 6-digit OTP against the stored hash.
-        """
+        """Validates raw 6-digit OTP against the stored hash."""
         from django.contrib.auth.hashers import check_password
         if not self.otp_hash or not raw_otp:
             return False
         return check_password(str(raw_otp).strip(), self.otp_hash)
 
     def is_expired(self):
-        """
-        Checks if the OTP has exceeded its 10-minute validity period.
-        """
+        """Checks if the OTP has exceeded its 10-minute validity period."""
         from django.utils import timezone
         return timezone.now() > self.expires_at
 
@@ -270,7 +378,6 @@ class EmailVerificationOTP(models.Model):
 class PasswordResetOTP(models.Model):
     """
     Model storing cryptographically secure, hashed 6-digit OTPs for user password reset requests.
-    Completely separated from Registration EmailVerificationOTP.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_reset_otps', verbose_name="User")
     otp_hash = models.CharField(max_length=255, verbose_name="Hashed OTP")
@@ -290,40 +397,30 @@ class PasswordResetOTP(models.Model):
 
     @staticmethod
     def generate_otp_code():
-        """
-        Generates a cryptographically secure 6-digit numeric OTP.
-        """
+        """Generates a cryptographically secure 6-digit numeric OTP."""
         import secrets
         return f"{secrets.randbelow(1000000):06d}"
 
     def set_otp(self, raw_otp):
-        """
-        Hashes and stores the OTP securely using Django's password hasher.
-        """
+        """Hashes and stores the OTP securely using Django's password hasher."""
         from django.contrib.auth.hashers import make_password
         self.otp_hash = make_password(str(raw_otp).strip())
 
     def check_otp(self, raw_otp):
-        """
-        Validates raw 6-digit OTP against the stored hash.
-        """
+        """Validates raw 6-digit OTP against the stored hash."""
         from django.contrib.auth.hashers import check_password
         if not self.otp_hash or not raw_otp:
             return False
         return check_password(str(raw_otp).strip(), self.otp_hash)
 
     def is_expired(self):
-        """
-        Checks if the OTP has exceeded its 10-minute validity period.
-        """
+        """Checks if the OTP has exceeded its 10-minute validity period."""
         from django.utils import timezone
         return timezone.now() > self.expires_at
 
 
 def log_activity(action, details="", user=None, icon=None):
-    """
-    Safely creates an activity audit record.
-    """
+    """Safely creates an activity audit record."""
     icon_map = {
         'User Registered': 'fa-user-plus',
         'Email Verified': 'fa-circle-check',
@@ -353,5 +450,3 @@ def log_activity(action, details="", user=None, icon=None):
         )
     except Exception:
         return None
-
-

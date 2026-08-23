@@ -21,6 +21,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseForbidden, JsonResponse
 
 from .models import (
+    District,
+    Taluka,
+    Village,
     FarmerProfile,
     Crop,
     ContactMessage,
@@ -147,13 +150,15 @@ GUJARAT_LOCATIONS_MAP = {
 def home_view(request):
     """
     Landing Home Page localized to Gujarat, India agriculture.
-    Displays live statistics calculated dynamically from PostgreSQL database.
+    Displays live statistics calculated dynamically from database.
     """
-    total_farmers = User.objects.filter(is_staff=False).count() or User.objects.count()
-    verified_farmers = User.objects.filter(is_active=True, is_staff=False).count() or User.objects.filter(is_active=True).count()
+    total_farmers = FarmerProfile.objects.count() or User.objects.filter(is_staff=False).count() or User.objects.count()
+    total_gujarat_farmers = FarmerProfile.objects.filter(state__iexact='Gujarat').count() or total_farmers
+    verified_farmers = EmailVerificationOTP.objects.filter(is_verified=True).values('user').distinct().count() or total_farmers
     total_crops_managed = Crop.objects.count()
     total_area_agg = Crop.objects.aggregate(total=Sum('farm_area'))
-    total_farm_area = total_area_agg['total'] or 0.0
+    total_farm_area = round(float(total_area_agg['total'] or 0.0), 2)
+    district_farmer_stats = list(FarmerProfile.objects.values('district').annotate(farmer_count=Count('id')).order_by('-farmer_count')[:6])
 
     # Featured Gujarat Agricultural Crops
     featured_gujarat_crops = [
@@ -223,9 +228,11 @@ def home_view(request):
         'page_title': 'AgriConnect — Smart Farming Platform for Gujarat',
         'active_page': 'home',
         'total_farmers': total_farmers,
+        'total_gujarat_farmers': total_gujarat_farmers,
         'verified_farmers': verified_farmers,
         'total_crops_managed': total_crops_managed,
         'total_farm_area': total_farm_area,
+        'district_farmer_stats': district_farmer_stats,
         'featured_crops': featured_gujarat_crops,
     }
     return render(request, 'farming/home.html', context)
@@ -552,22 +559,111 @@ def farming_tips_view(request):
 def get_gujarat_location_info(query):
     """
     Validates whether the provided query belongs to Gujarat.
+    Checks District, Taluka, and Village database models as well as canonical locations map.
+    Handles compound queries like 'Bavla, Ahmedabad', 'Jesar, Bhavnagar', 'Moti Marad, Gondal, Rajkot', etc.
     Returns normalized dictionary or None if location is outside Gujarat.
     """
     if not query or not str(query).strip():
         return GUJARAT_LOCATIONS_MAP['ahmedabad']
-    q = str(query).strip().lower()
+
+    q_raw = str(query).strip()
+    q = q_raw.lower()
     q_clean = q.replace(', gujarat, india', '').replace(', gujarat', '').replace(', india', '').replace(' district', '').strip()
-    
-    if q_clean in GUJARAT_LOCATIONS_MAP:
-        return GUJARAT_LOCATIONS_MAP[q_clean]
-    
-    for key, info in GUJARAT_LOCATIONS_MAP.items():
-        if key == q_clean:
-            return info
-        if len(q_clean) >= 3 and (key.startswith(q_clean) or q_clean.startswith(key)):
-            return info
-            
+
+    # Reject obvious non-Gujarat / foreign locations immediately
+    non_gujarat_blacklist = [
+        'mumbai', 'delhi', 'new delhi', 'dubai', 'london', 'new york', 'kolkata', 'chennai',
+        'bangalore', 'bengaluru', 'pune', 'hyderabad', 'jaipur', 'lucknow', 'chandigarh',
+        'bhopal', 'indore', 'patna', 'nagpur', 'kanpur', 'agra', 'tokyo', 'paris', 'sydney',
+        'singapore', 'california', 'texas', 'florida', 'toronto', 'lahore', 'karachi', 'dhaka',
+        'punjab', 'rajasthan', 'maharashtra', 'karnataka', 'kerala', 'tamil nadu', 'uttar pradesh',
+        'madhya pradesh', 'bihar', 'west bengal', 'odisha', 'haryana', 'assam'
+    ]
+    for bl in non_gujarat_blacklist:
+        if q_clean == bl or q_clean.startswith(bl + ',') or q_clean.startswith(bl + ' '):
+            return None
+
+    # Handle comma-separated compound queries e.g. "Bavla, Ahmedabad" or "Jesar, Bhavnagar"
+    parts = [p.strip() for p in q_clean.split(',') if p.strip()]
+    for p in parts:
+        if p in non_gujarat_blacklist:
+            return None
+
+    search_candidates = [q_clean]
+    if len(parts) > 1:
+        search_candidates.extend(parts)
+
+    for term in search_candidates:
+        if not term:
+            continue
+
+        # 1. Check District Model
+        try:
+            dist_match = District.objects.filter(Q(name__iexact=term) | Q(slug__iexact=term)).first()
+            if dist_match:
+                taluka_name = ''
+                if len(parts) > 1 and term != parts[0]:
+                    t_cand = Taluka.objects.filter(district=dist_match, name__iexact=parts[0]).first()
+                    if t_cand:
+                        taluka_name = t_cand.name
+
+                city_name = taluka_name if taluka_name else dist_match.name
+                return {
+                    'district': dist_match.name,
+                    'city': city_name,
+                    'taluka': taluka_name,
+                    'region': dist_match.region or 'Gujarat',
+                    'query': f"{city_name}, {dist_match.name}, Gujarat, India" if taluka_name else f"{dist_match.name}, Gujarat, India"
+                }
+        except Exception:
+            pass
+
+        # 2. Check Taluka Model
+        try:
+            taluka_qs = Taluka.objects.filter(Q(name__iexact=term) | Q(slug__iexact=term)).select_related('district')
+            if len(parts) > 1:
+                for other_p in parts:
+                    specific_taluka = taluka_qs.filter(district__name__iexact=other_p).first()
+                    if specific_taluka:
+                        taluka_qs = [specific_taluka]
+                        break
+            taluka_match = taluka_qs.first() if hasattr(taluka_qs, 'first') else (taluka_qs[0] if taluka_qs else None)
+            if taluka_match:
+                return {
+                    'district': taluka_match.district.name,
+                    'city': taluka_match.name,
+                    'taluka': taluka_match.name,
+                    'region': taluka_match.district.region or 'Gujarat',
+                    'query': f"{taluka_match.name}, {taluka_match.district.name}, Gujarat, India"
+                }
+        except Exception:
+            pass
+
+        # 3. Check Village Model
+        try:
+            village_match = Village.objects.filter(name__iexact=term).select_related('taluka__district').first()
+            if village_match:
+                return {
+                    'district': village_match.taluka.district.name,
+                    'city': village_match.name,
+                    'taluka': village_match.taluka.name,
+                    'village': village_match.name,
+                    'region': village_match.taluka.district.region or 'Gujarat',
+                    'query': f"{village_match.name}, {village_match.taluka.district.name}, Gujarat, India"
+                }
+        except Exception:
+            pass
+
+        # 4. Check Canonical Lookup Map
+        if term in GUJARAT_LOCATIONS_MAP:
+            return GUJARAT_LOCATIONS_MAP[term]
+
+        for key, info in GUJARAT_LOCATIONS_MAP.items():
+            if key == term:
+                return info
+            if len(term) >= 3 and (key.startswith(term) or term.startswith(key)):
+                return info
+
     return None
 
 
@@ -697,24 +793,39 @@ def fetch_gujarat_weather(city_query):
         }
 
     try:
-        query_param = location_info['query']
-        encoded_q = urllib.parse.quote(query_param)
-        api_url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={encoded_q}&days=5&aqi=no&alerts=no"
-        req = urllib.request.Request(
-            api_url,
-            headers={
-                'User-Agent': 'AgriConnect-Django/1.0',
-                'Accept': 'application/json'
-            }
-        )
+        # Build query candidates (try specific taluka/village first, then parent district fallback)
+        query_candidates = [
+            location_info['query'],
+            f"{location_info.get('city')}, {location_info.get('district')}, Gujarat, India" if location_info.get('taluka') or location_info.get('village') else None,
+            f"{location_info.get('district')}, Gujarat, India",
+            f"{location_info.get('district')}, Gujarat",
+        ]
+        query_candidates = [q for q in query_candidates if q]
 
-        with urllib.request.urlopen(req, timeout=8) as response:
-            if response.status != 200:
-                return {
-                    'success': False,
-                    'error': 'Weather information is temporarily unavailable. Please try again.'
-                }
-            raw_data = json.loads(response.read().decode('utf-8'))
+        raw_data = None
+        for q_attempt in query_candidates:
+            try:
+                encoded_q = urllib.parse.quote(q_attempt)
+                api_url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={encoded_q}&days=5&aqi=no&alerts=no"
+                req = urllib.request.Request(
+                    api_url,
+                    headers={
+                        'User-Agent': 'AgriConnect-Django/1.0',
+                        'Accept': 'application/json'
+                    }
+                )
+                with urllib.request.urlopen(req, timeout=8) as response:
+                    if response.status == 200:
+                        raw_data = json.loads(response.read().decode('utf-8'))
+                        break
+            except Exception:
+                continue
+
+        if not raw_data:
+            return {
+                'success': False,
+                'error': 'Weather information is temporarily unavailable. Please try again.'
+            }
 
         # Validate location returned is in Gujarat, India
         loc = raw_data.get('location', {})
@@ -807,14 +918,21 @@ def fetch_gujarat_weather(city_query):
             region_name=location_info['region']
         )
 
+        # Astro data (Sunrise & Sunset)
+        astro = forecast_days[0].get('astro', {}) if forecast_days else {}
+        sunrise = astro.get('sunrise', '06:15 AM')
+        sunset = astro.get('sunset', '06:45 PM')
+
         result = {
             'success': True,
-            'city': location_info['city'],
-            'district': location_info['district'],
-            'region': location_info['region'],
+            'city': location_info.get('city', location_info.get('district')),
+            'district': location_info.get('district'),
+            'taluka': location_info.get('taluka', ''),
+            'village': location_info.get('village', ''),
+            'region': location_info.get('region', 'Gujarat'),
             'state': 'Gujarat',
             'country': 'India',
-            'location_display': f"{location_info['city']}, {location_info['district']} (Gujarat, India)",
+            'location_display': f"{location_info.get('city')}, {location_info.get('district')} (Gujarat, India)",
             'temperature': temp_c,
             'feels_like': feels_like,
             'condition': cond_text,
@@ -827,6 +945,8 @@ def fetch_gujarat_weather(city_query):
             'uv_index': uv_val,
             'cloud_cover': cloud_val,
             'precipitation': precip_mm,
+            'sunrise': sunrise,
+            'sunset': sunset,
             'is_day': curr.get('is_day', 1),
             'last_updated': curr.get('last_updated', ''),
             'forecast': forecast_list,
@@ -856,14 +976,78 @@ def fetch_gujarat_weather(city_query):
 def api_weather_view(request):
     """
     JSON API endpoint for Gujarat Agricultural Weather.
-    GET /api/weather/?city=Ahmedabad
+    GET /api/weather/?city=Ahmedabad or ?district=Rajkot&taluka=Gondal
     Restricts access strictly to Gujarat locations.
     """
-    city_query = request.GET.get('city', 'Ahmedabad').strip()
-    data = fetch_gujarat_weather(city_query)
-    
+    district_param = request.GET.get('district', '').strip()
+    taluka_param = request.GET.get('taluka', '').strip()
+    village_param = request.GET.get('village', '').strip()
+    city_query = request.GET.get('city', '').strip()
+
+    if village_param and taluka_param and district_param:
+        search_query = f"{village_param}, {taluka_param}, {district_param}"
+    elif taluka_param and district_param:
+        search_query = f"{taluka_param}, {district_param}"
+    elif district_param:
+        search_query = district_param
+    elif city_query:
+        search_query = city_query
+    else:
+        search_query = 'Ahmedabad'
+
+    data = fetch_gujarat_weather(search_query)
     status_code = 200 if data.get('success') else 400
     return JsonResponse(data, status=status_code)
+
+
+def api_districts_view(request):
+    """
+    JSON API endpoint returning all 33 Gujarat administrative districts.
+    GET /api/districts/
+    """
+    districts = District.objects.all().order_by('name')
+    data = [{'id': d.id, 'name': d.name, 'region': d.region, 'slug': d.slug} for d in districts]
+    return JsonResponse({'success': True, 'districts': data})
+
+
+def api_talukas_view(request):
+    """
+    JSON API endpoint returning Talukas for a selected Gujarat District.
+    GET /api/talukas/?district_id=1 OR ?district_name=Rajkot
+    """
+    district_id = request.GET.get('district_id')
+    district_name = request.GET.get('district_name') or request.GET.get('district')
+
+    talukas = Taluka.objects.none()
+    if district_id and str(district_id).isdigit():
+        talukas = Taluka.objects.filter(district_id=int(district_id)).order_by('name')
+    elif district_name:
+        talukas = Taluka.objects.filter(district__name__iexact=district_name.strip()).order_by('name')
+    else:
+        talukas = Taluka.objects.all().order_by('district__name', 'name')
+
+    data = [{'id': t.id, 'name': t.name, 'district_id': t.district_id, 'district_name': t.district.name} for t in talukas]
+    return JsonResponse({'success': True, 'talukas': data})
+
+
+def api_villages_view(request):
+    """
+    JSON API endpoint returning Villages for a selected Gujarat Taluka.
+    GET /api/villages/?taluka_id=10 OR ?taluka_name=Gondal
+    """
+    taluka_id = request.GET.get('taluka_id')
+    taluka_name = request.GET.get('taluka_name') or request.GET.get('taluka')
+
+    villages = Village.objects.none()
+    if taluka_id and str(taluka_id).isdigit():
+        villages = Village.objects.filter(taluka_id=int(taluka_id)).order_by('name')
+    elif taluka_name:
+        villages = Village.objects.filter(taluka__name__iexact=taluka_name.strip()).order_by('name')
+    else:
+        villages = Village.objects.all().order_by('name')
+
+    data = [{'id': v.id, 'name': v.name, 'taluka_id': v.taluka_id, 'pincode': v.pincode} for v in villages]
+    return JsonResponse({'success': True, 'villages': data})
 
 
 def weather_view(request):
@@ -1846,20 +2030,21 @@ def logout_view(request):
 def dashboard_view(request):
     """
     Farmer Dashboard: summarizes crops, active acreages, status breakdowns,
-    and recent farming logs.
+    district overview, and recent farming logs.
     """
     user = request.user
     user_crops = Crop.objects.filter(farmer=user)
 
     total_crops = user_crops.count()
-    active_crops = user_crops.filter(status__in=['Planted', 'Growing']).count()
-    ready_crops = user_crops.filter(status='Ready to Harvest').count()
+    active_crops = user_crops.filter(status__in=['Planted', 'Growing', 'Planned']).count()
+    ready_crops = user_crops.filter(status__in=['Ready to Harvest', 'Ready for Harvest']).count()
     harvested_crops = user_crops.filter(status='Harvested').count()
 
     total_area_agg = user_crops.aggregate(total_area=Sum('farm_area'))
-    total_area = total_area_agg['total_area'] or 0.0
+    total_area = round(float(total_area_agg['total_area'] or 0.0), 2)
 
-    recent_crops = user_crops.order_by('-created_at')[:5]
+    recent_crops = user_crops.order_by('-created_at')[:6]
+    district_farmer_stats = list(FarmerProfile.objects.values('district').annotate(farmer_count=Count('id')).order_by('-farmer_count')[:10])
 
     context = {
         'page_title': 'Farmer Dashboard | AgriConnect',
@@ -1870,6 +2055,7 @@ def dashboard_view(request):
         'harvested_crops': harvested_crops,
         'total_area': total_area,
         'recent_crops': recent_crops,
+        'district_farmer_stats': district_farmer_stats,
     }
     return render(request, 'farming/dashboard.html', context)
 
@@ -1904,10 +2090,10 @@ def my_crops_view(request):
 @login_required
 def add_crop_view(request):
     """
-    Add a new crop to the logged-in farmer's inventory.
+    Add a new crop to the logged-in farmer's inventory with prefilled location from profile.
     """
     if request.method == 'POST':
-        form = CropForm(request.POST)
+        form = CropForm(request.POST, user=request.user)
         if form.is_valid():
             crop = form.save(commit=False)
             crop.farmer = request.user
@@ -1918,7 +2104,7 @@ def add_crop_view(request):
         else:
             messages.error(request, "Could not add crop. Please check form validation errors.")
     else:
-        form = CropForm()
+        form = CropForm(user=request.user)
 
     context = {
         'page_title': 'Add New Crop | AgriConnect',
@@ -1941,7 +2127,7 @@ def edit_crop_view(request, id):
         return redirect('my_crops')
 
     if request.method == 'POST':
-        form = CropForm(request.POST, instance=crop)
+        form = CropForm(request.POST, instance=crop, user=request.user)
         if form.is_valid():
             form.save()
             log_activity('Crop Updated', f"Farmer {request.user.username} updated crop '{crop.crop_name}'", user=request.user, icon='fa-pen-to-square')
@@ -1950,7 +2136,7 @@ def edit_crop_view(request, id):
         else:
             messages.error(request, "Failed to update crop. Please correct the errors.")
     else:
-        form = CropForm(instance=crop)
+        form = CropForm(instance=crop, user=request.user)
 
     context = {
         'page_title': f'Edit Crop: {crop.crop_name} | AgriConnect',

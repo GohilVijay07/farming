@@ -1,6 +1,7 @@
 /**
  * AgriConnect — Smart Farming Management System
  * Global Modern JavaScript Interactive Framework & Micro-Interactions
+ * Gujarat Focused (District -> Taluka -> Village Hierarchy)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 12. Initialize 3D Card Hover Tilt Effects
     init3DTiltEffects();
+
+    // 13. Initialize Gujarat Dependent Dropdowns (District -> Taluka -> Village)
+    initGujaratLocationDropdowns();
 });
 
 
@@ -148,45 +152,40 @@ function dismissAlert(alertElement) {
     alertElement.style.opacity = '0';
     alertElement.style.transform = 'translateX(60px)';
     setTimeout(() => {
-        if (alertElement.parentNode) {
-            alertElement.parentNode.removeChild(alertElement);
-        }
-    }, 350);
+        alertElement.remove();
+    }, 360);
 }
 
 
 /* ==========================================================================
-   5. Real-time Crop Search Filter
+   5. Crop Catalog Real-Time Search Filter (crops.html)
    ========================================================================== */
 function initCropSearch() {
     const searchInput = document.getElementById('cropSearchInput');
     const cropCards = document.querySelectorAll('.crop-item-card');
-    const noResultsMsg = document.getElementById('noCropResults');
+    const noResults = document.getElementById('noCropsFound');
 
     if (searchInput && cropCards.length > 0) {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            let visibleCount = 0;
+            let matchCount = 0;
 
             cropCards.forEach(card => {
-                const name = card.getAttribute('data-name') || '';
-                const type = card.getAttribute('data-type') || '';
-                const season = card.getAttribute('data-season') || '';
-                const soil = card.getAttribute('data-soil') || '';
-                const description = card.querySelector('.crop-description')?.textContent || '';
+                const name = (card.getAttribute('data-name') || '').toLowerCase();
+                const region = (card.getAttribute('data-region') || '').toLowerCase();
+                const season = (card.getAttribute('data-season') || '').toLowerCase();
+                const type = (card.getAttribute('data-type') || '').toLowerCase();
 
-                const combinedText = `${name} ${type} ${season} ${soil} ${description}`.toLowerCase();
-
-                if (combinedText.includes(query)) {
+                if (name.includes(query) || region.includes(query) || season.includes(query) || type.includes(query)) {
                     card.style.display = 'flex';
-                    visibleCount++;
+                    matchCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
 
-            if (noResultsMsg) {
-                noResultsMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+            if (noResults) {
+                noResults.style.display = (matchCount === 0) ? 'block' : 'none';
             }
         });
     }
@@ -194,26 +193,25 @@ function initCropSearch() {
 
 
 /* ==========================================================================
-   6. Farming Tips Category Filter Tabs
+   6. Farming Tips Category Filter Tabs (farming_tips.html)
    ========================================================================== */
 function initTipsFilter() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const tipGroups = document.querySelectorAll('.tips-category-group');
+    const tabButtons = document.querySelectorAll('.tip-category-tab');
+    const categorySections = document.querySelectorAll('.tip-category-section');
 
-    if (filterButtons.length > 0 && tipGroups.length > 0) {
-        filterButtons.forEach(btn => {
+    if (tabButtons.length > 0 && categorySections.length > 0) {
+        tabButtons.forEach(btn => {
             btn.addEventListener('click', () => {
-                filterButtons.forEach(b => b.classList.remove('active'));
+                tabButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                const targetCategory = btn.getAttribute('data-filter');
+                const targetCategory = btn.getAttribute('data-category');
 
-                tipGroups.forEach(group => {
-                    const groupSlug = group.getAttribute('data-slug');
-                    if (targetCategory === 'all' || groupSlug === targetCategory) {
-                        group.style.display = 'block';
+                categorySections.forEach(section => {
+                    if (targetCategory === 'all' || section.getAttribute('data-category') === targetCategory) {
+                        section.style.display = 'block';
                     } else {
-                        group.style.display = 'none';
+                        section.style.display = 'none';
                     }
                 });
             });
@@ -223,28 +221,23 @@ function initTipsFilter() {
 
 
 /* ==========================================================================
-   7. Delete Confirmation Modal
+   7. Reusable Crop Delete Confirmation Modal
    ========================================================================== */
-let deleteTargetUrl = '';
-
 function initDeleteConfirmation() {
-    const deleteButtons = document.querySelectorAll('.btn-trigger-delete');
     const modalOverlay = document.getElementById('deleteModal');
     const modalCropName = document.getElementById('modalCropName');
     const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
     const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-    if (deleteButtons.length > 0 && modalOverlay) {
-        deleteButtons.forEach(btn => {
+    if (modalOverlay) {
+        let deleteTargetUrl = '';
+
+        document.querySelectorAll('.btn-trigger-delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 deleteTargetUrl = btn.getAttribute('data-url');
                 const cropName = btn.getAttribute('data-name') || 'this crop';
-
-                if (modalCropName) {
-                    modalCropName.textContent = cropName;
-                }
-
+                if (modalCropName) modalCropName.textContent = cropName;
                 modalOverlay.classList.add('active');
             });
         });
@@ -280,6 +273,7 @@ function initDeleteConfirmation() {
 function initWeatherSimulation() {
     const weatherForm = document.getElementById('weatherSearchForm');
     const districtSelect = document.getElementById('weatherDistrictSelect');
+    const talukaInput = document.getElementById('weatherTalukaInput');
     const cityInput = document.getElementById('weatherCityInput');
     const loadingOverlay = document.getElementById('weatherLoadingOverlay');
     const errorBox = document.getElementById('weatherErrorBox');
@@ -297,8 +291,8 @@ function initWeatherSimulation() {
     const rainEl = document.getElementById('weatherRainDisplay');
     const pressureEl = document.getElementById('weatherPressureDisplay');
     const visibilityEl = document.getElementById('weatherVisibilityDisplay');
-    const uvEl = document.getElementById('weatherUvDisplay');
-    const precipEl = document.getElementById('weatherPrecipDisplay');
+    const sunriseEl = document.getElementById('weatherSunriseDisplay');
+    const sunsetEl = document.getElementById('weatherSunsetDisplay');
     const lastUpdatedEl = document.getElementById('weatherLastUpdatedDisplay');
 
     // UI elements for Advice and Forecast
@@ -334,26 +328,26 @@ function initWeatherSimulation() {
         }
     }
 
-    async function fetchWeather(city) {
-        if (!city || !city.trim()) return;
-        const queryCity = city.trim();
+    async function fetchWeather(query) {
+        if (!query || !query.trim()) return;
+        const queryClean = query.trim();
 
         hideError();
         showLoading(true);
 
         try {
-            const response = await fetch(`/api/weather/?city=${encodeURIComponent(queryCity)}`);
+            const response = await fetch(`/api/weather/?city=${encodeURIComponent(queryClean)}`);
             const data = await response.json();
 
             if (!data.success) {
-                showError(data.error || 'AgriConnect provides weather information only for Gujarat.');
+                showError(data.error || 'Please select a valid Gujarat location.');
                 showLoading(false);
                 return;
             }
 
             // 1. Update Current Weather Hero Elements
             if (locationCityEl) {
-                locationCityEl.textContent = `${data.city}, ${data.district} (Gujarat, India)`;
+                locationCityEl.textContent = data.location_display || `${data.city}, ${data.district} (Gujarat, India)`;
             }
             if (tempEl) tempEl.textContent = `${data.temperature}°C`;
             if (conditionEl) conditionEl.textContent = data.condition;
@@ -368,13 +362,11 @@ function initWeatherSimulation() {
             // 2. Update Atmospheric Metric Boxes
             if (feelsLikeEl) feelsLikeEl.textContent = `${data.feels_like}°C`;
             if (humidityEl) humidityEl.textContent = `${data.humidity}%`;
-            if (windEl) {
-                windEl.innerHTML = `${data.wind_speed} km/h <span style="font-size: 0.8rem; font-weight: 500; opacity: 0.85;">${data.wind_dir || ''}</span>`;
-            }
+            if (windEl) windEl.textContent = `${data.wind_speed} km/h`;
             if (pressureEl) pressureEl.textContent = `${data.pressure} mb`;
             if (visibilityEl) visibilityEl.textContent = `${data.visibility} km`;
-            if (uvEl) uvEl.textContent = `${data.uv_index}`;
-            if (precipEl) precipEl.textContent = `${data.precipitation} mm`;
+            if (sunriseEl) sunriseEl.textContent = data.sunrise || '06:15 AM';
+            if (sunsetEl) sunsetEl.textContent = data.sunset || '06:45 PM';
 
             // 3. Update Forecast Rain Chance in Hero
             if (rainEl && data.forecast && data.forecast.length > 0) {
@@ -451,53 +443,71 @@ function initWeatherSimulation() {
                     forecastGridEl.appendChild(card);
                 });
             }
-
-            // 6. Sync inputs
-            if (cityInput) cityInput.value = data.city;
-            if (districtSelect) {
-                for (let i = 0; i < districtSelect.options.length; i++) {
-                    const optVal = districtSelect.options[i].value.toLowerCase();
-                    if (optVal === data.district.toLowerCase() || optVal === data.city.toLowerCase()) {
-                        districtSelect.selectedIndex = i;
-                        break;
-                    }
-                }
-            }
-
         } catch (err) {
-            showError('Weather information is temporarily unavailable. Please try again later.', 'Connection Notice');
+            showError('Could not connect to Gujarat weather service. Please check your connection.');
         } finally {
             showLoading(false);
         }
     }
 
-    // Dropdown change listener
+    // District Selector Handler
     if (districtSelect) {
         districtSelect.addEventListener('change', () => {
-            const selected = districtSelect.value;
-            if (selected) {
-                fetchWeather(selected);
+            const selectedDist = districtSelect.value;
+            if (cityInput) cityInput.value = selectedDist;
+            if (talukaInput) {
+                talukaInput.value = '';
+                loadTalukasForDatalist(selectedDist, 'weather_taluka_datalist');
+            }
+            fetchWeather(selectedDist);
+        });
+
+        // Initialize talukas for selected district on page load
+        if (districtSelect.value) {
+            loadTalukasForDatalist(districtSelect.value, 'weather_taluka_datalist');
+        }
+    }
+
+    // Taluka change handler
+    if (talukaInput) {
+        talukaInput.addEventListener('change', () => {
+            const taluka = talukaInput.value.trim();
+            const dist = districtSelect ? districtSelect.value : '';
+            if (taluka) {
+                const combined = `${taluka}, ${dist}`;
+                if (cityInput) cityInput.value = combined;
+                fetchWeather(combined);
             }
         });
     }
 
-    // Search form submit listener
-    if (weatherForm) {
+    // Form Search Handler
+    if (weatherForm && cityInput) {
         weatherForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const inputVal = cityInput?.value;
-            if (inputVal && inputVal.trim()) {
-                fetchWeather(inputVal.trim());
-            }
+            const val = cityInput.value.trim();
+            if (val) fetchWeather(val);
         });
     }
 
-    // Quick District Badges
-    const quickButtons = document.querySelectorAll('.btn-quick-city');
-    quickButtons.forEach(btn => {
+    // Quick City Shortcuts
+    document.querySelectorAll('.btn-quick-city').forEach(btn => {
         btn.addEventListener('click', () => {
             const city = btn.getAttribute('data-city');
             if (city) {
+                if (cityInput) cityInput.value = city;
+                if (districtSelect) {
+                    for (let opt of districtSelect.options) {
+                        if (opt.value.toLowerCase() === city.toLowerCase()) {
+                            districtSelect.value = opt.value;
+                            if (talukaInput) {
+                                talukaInput.value = '';
+                                loadTalukasForDatalist(opt.value, 'weather_taluka_datalist');
+                            }
+                            break;
+                        }
+                    }
+                }
                 fetchWeather(city);
             }
         });
@@ -506,150 +516,109 @@ function initWeatherSimulation() {
 
 
 /* ==========================================================================
-   9. 6-Digit Email OTP Verification & Timers
+   9. 6-Digit OTP Verification Form & Countdown Timers
    ========================================================================== */
 function initOtpVerification() {
-    const otpForm = document.getElementById('otpForm');
-    if (!otpForm) return;
-
-    const otpInputs = Array.from(document.querySelectorAll('.otp-box-input'));
+    const otpBoxes = document.querySelectorAll('.otp-box-input');
     const fullOtpInput = document.getElementById('otp_full_code');
     const timerDisplay = document.getElementById('otpTimerDisplay');
     const resendBtn = document.getElementById('resendOtpBtn');
-    const resendNotice = document.getElementById('resendCooldownNotice');
-    const resendText = document.getElementById('resendBtnText');
+    const resendCooldownDisplay = document.getElementById('resendCooldownTimer');
 
-    // Auto-focus and navigation among 6 digit inputs
-    otpInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            const val = e.target.value.replace(/[^0-9]/g, '');
-            input.value = val ? val[0] : '';
+    if (otpBoxes.length === 6) {
+        otpBoxes.forEach((box, index) => {
+            box.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val.length === 1 && index < 5) {
+                    otpBoxes[index + 1].focus();
+                }
+                updateFullOtpCode();
+            });
 
-            if (input.value && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
-            }
-
-            syncFullOtp();
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !input.value && index > 0) {
-                otpInputs[index - 1].focus();
-            }
-        });
-
-        input.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
-            const digits = pasteData.replace(/[^0-9]/g, '').slice(0, 6);
-
-            digits.split('').forEach((d, i) => {
-                if (otpInputs[i]) {
-                    otpInputs[i].value = d;
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && index > 0) {
+                    otpBoxes[index - 1].focus();
                 }
             });
 
-            if (digits.length === 6) {
-                otpInputs[5].focus();
-            } else if (digits.length > 0 && digits.length < 6) {
-                otpInputs[digits.length].focus();
-            }
-
-            syncFullOtp();
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+                if (/^\d{6}$/.test(pasteData)) {
+                    pasteData.split('').forEach((digit, i) => {
+                        if (otpBoxes[i]) otpBoxes[i].value = digit;
+                    });
+                    updateFullOtpCode();
+                    otpBoxes[5].focus();
+                }
+            });
         });
-    });
 
-    function syncFullOtp() {
-        const fullCode = otpInputs.map(inp => inp.value).join('');
-        if (fullOtpInput) {
-            fullOtpInput.value = fullCode;
+        function updateFullOtpCode() {
+            let code = '';
+            otpBoxes.forEach(b => { code += b.value; });
+            if (fullOtpInput) fullOtpInput.value = code;
+        }
+
+        // 1. Expiration Countdown Timer
+        if (timerDisplay) {
+            let remainingSec = parseInt(timerDisplay.getAttribute('data-remaining') || '180', 10);
+            const interval = setInterval(() => {
+                remainingSec--;
+                if (remainingSec <= 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = '00:00 (Expired)';
+                    timerDisplay.style.color = '#DC2626';
+                } else {
+                    const m = Math.floor(remainingSec / 60);
+                    const s = remainingSec % 60;
+                    timerDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        // 2. Resend 60-Second Cooldown Timer
+        if (resendCooldownDisplay) {
+            let cooldown = parseInt(resendCooldownDisplay.getAttribute('data-cooldown') || '60', 10);
+            if (cooldown > 0 && resendBtn) {
+                resendBtn.style.pointerEvents = 'none';
+                resendBtn.style.opacity = '0.5';
+
+                const cooldownInterval = setInterval(() => {
+                    cooldown--;
+                    if (cooldown <= 0) {
+                        clearInterval(cooldownInterval);
+                        resendCooldownDisplay.textContent = '';
+                        resendBtn.style.pointerEvents = 'auto';
+                        resendBtn.style.opacity = '1';
+                    } else {
+                        resendCooldownDisplay.textContent = ` (Wait ${cooldown}s)`;
+                    }
+                }, 1000);
+            }
         }
     }
-
-    // Countdown Timer for OTP Expiration
-    let remainingSeconds = parseInt(otpForm.getAttribute('data-remaining') || '180', 10);
-    let cooldownSeconds = parseInt(otpForm.getAttribute('data-cooldown') || '0', 10);
-
-    function formatTime(sec) {
-        const m = Math.floor(sec / 60);
-        const s = sec % 60;
-        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-
-    if (timerDisplay && remainingSeconds > 0) {
-        timerDisplay.textContent = formatTime(remainingSeconds);
-        const countdownInterval = setInterval(() => {
-            remainingSeconds--;
-            if (remainingSeconds <= 0) {
-                clearInterval(countdownInterval);
-                timerDisplay.textContent = 'Expired';
-                timerDisplay.style.color = '#DC2626';
-            } else {
-                timerDisplay.textContent = formatTime(remainingSeconds);
-            }
-        }, 1000);
-    }
-
-    // Resend Cooldown
-    if (resendBtn && cooldownSeconds > 0) {
-        resendBtn.classList.add('disabled');
-        resendBtn.style.pointerEvents = 'none';
-        resendBtn.style.opacity = '0.6';
-        if (resendNotice) resendNotice.style.display = 'block';
-
-        const cooldownInterval = setInterval(() => {
-            cooldownSeconds--;
-            if (cooldownSeconds <= 0) {
-                clearInterval(cooldownInterval);
-                resendBtn.classList.remove('disabled');
-                resendBtn.style.pointerEvents = 'auto';
-                resendBtn.style.opacity = '1';
-                if (resendText) resendText.textContent = 'Resend OTP';
-                if (resendNotice) resendNotice.style.display = 'none';
-            } else {
-                if (resendText) resendText.textContent = `Resend in ${cooldownSeconds}s`;
-            }
-        }, 1000);
-    }
-
-    // Ensure full code is synced before form submission
-    otpForm.addEventListener('submit', (e) => {
-        syncFullOtp();
-        if (fullOtpInput && fullOtpInput.value.length < 6) {
-            e.preventDefault();
-            const errorBox = document.getElementById('otpErrorMessage');
-            if (errorBox) {
-                errorBox.textContent = 'Please enter all 6 digits of the OTP code.';
-                errorBox.style.display = 'block';
-            }
-        }
-    });
 }
 
 
 /* ==========================================================================
-   10. Scroll Reveal Animations (Intersection Observer)
+   10. Scroll Reveal Animations
    ========================================================================== */
 function initScrollReveal() {
-    const revealElements = document.querySelectorAll('.card, .crop-card, .feature-card, .stat-card, .tip-card');
-    if (!('IntersectionObserver' in window)) return;
+    const revealElements = document.querySelectorAll('.card-3d, .stat-card, .feature-card');
 
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
+    if ('IntersectionObserver' in window && revealElements.length > 0) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
 
-    revealElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(15px)';
-        el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-        observer.observe(el);
-    });
+        revealElements.forEach(el => observer.observe(el));
+    }
 }
 
 
@@ -657,49 +626,155 @@ function initScrollReveal() {
    11. Back to Top Button
    ========================================================================== */
 function initBackToTop() {
-    const backBtn = document.getElementById('backToTopBtn');
-    if (!backBtn) return;
+    const backToTopBtn = document.getElementById('backToTopBtn');
+    if (!backToTopBtn) return;
 
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 400) {
-            backBtn.classList.add('visible');
+        if (window.scrollY > 350) {
+            backToTopBtn.classList.add('visible');
         } else {
-            backBtn.classList.remove('visible');
+            backToTopBtn.classList.remove('visible');
         }
     }, { passive: true });
 
-    backBtn.addEventListener('click', () => {
+    backToTopBtn.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 }
 
 
 /* ==========================================================================
-   12. Subtle 3D Card Hover Tilt
+   12. 3D Card Hover Tilt Effects
    ========================================================================== */
 function init3DTiltEffects() {
-    const tiltCards = document.querySelectorAll('.card-3d, .hero-3d-base-card');
-    
+    const tiltCards = document.querySelectorAll('.card-3d');
+
     tiltCards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
-            
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            
-            const deltaX = (x - centerX) / centerX;
-            const deltaY = (y - centerY) / centerY;
-            
-            const rotateX = deltaY * -4;
-            const rotateY = deltaX * 4;
-            
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-6px)`;
+
+            const rotateX = ((y - centerY) / centerY) * -4;
+            const rotateY = ((x - centerX) / centerX) * 4;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
         });
-        
+
         card.addEventListener('mouseleave', () => {
             card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)';
         });
+    });
+}
+
+
+/* ==========================================================================
+   13. Gujarat Location Dependent Dropdowns (District -> Taluka -> Village)
+   ========================================================================== */
+
+/**
+ * Loads Talukas for a given Gujarat District into a <datalist> or <select>
+ */
+async function loadTalukasForDatalist(districtName, datalistId) {
+    if (!districtName) return;
+    const datalist = document.getElementById(datalistId);
+    if (!datalist) return;
+
+    try {
+        const res = await fetch(`/api/talukas/?district_name=${encodeURIComponent(districtName.trim())}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.talukas)) {
+            datalist.innerHTML = '';
+            data.talukas.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.name;
+                datalist.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.warn('Could not fetch talukas:', e);
+    }
+}
+
+/**
+ * Loads Villages for a given Gujarat Taluka into a <datalist>
+ */
+async function loadVillagesForDatalist(talukaName, datalistId) {
+    if (!talukaName) return;
+    const datalist = document.getElementById(datalistId);
+    if (!datalist) return;
+
+    try {
+        const res = await fetch(`/api/villages/?taluka_name=${encodeURIComponent(talukaName.trim())}`);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.villages)) {
+            datalist.innerHTML = '';
+            data.villages.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.name;
+                datalist.appendChild(opt);
+            });
+        }
+    } catch (e) {
+        console.warn('Could not fetch villages:', e);
+    }
+}
+
+/**
+ * Binds location cascading behavior across all form pairs (Register, Profile, Add Crop, Edit Crop)
+ */
+function initGujaratLocationDropdowns() {
+    const pairs = [
+        { dist: 'reg_district', taluka: 'reg_taluka', talukaList: 'reg_taluka_datalist', village: 'reg_farm_location', villageList: 'reg_village_datalist' },
+        { dist: 'profile_district', taluka: 'profile_taluka', talukaList: 'profile_taluka_datalist', village: 'profile_farm_location', villageList: 'profile_village_datalist' },
+        { dist: 'crop_district', taluka: 'crop_taluka', talukaList: 'crop_taluka_datalist', village: 'crop_village', villageList: 'crop_village_datalist' },
+        { dist: 'user_district', taluka: 'user_taluka', talukaList: null, village: 'user_farm_location', villageList: null }
+    ];
+
+    pairs.forEach(pair => {
+        const distEl = document.getElementById(pair.dist);
+        const talukaEl = document.getElementById(pair.taluka);
+        const villageEl = document.getElementById(pair.village);
+
+        if (distEl) {
+            // Bind datalists if specified
+            if (pair.talukaList && talukaEl) {
+                talukaEl.setAttribute('list', pair.talukaList);
+            }
+            if (pair.villageList && villageEl) {
+                villageEl.setAttribute('list', pair.villageList);
+            }
+
+            // On District Change
+            distEl.addEventListener('change', () => {
+                const distVal = distEl.value;
+                if (pair.talukaList) {
+                    loadTalukasForDatalist(distVal, pair.talukaList);
+                }
+                if (talukaEl && !talukaEl.value) {
+                    talukaEl.placeholder = `Select Taluka in ${distVal}...`;
+                }
+            });
+
+            // Initial load for pre-selected district
+            if (distEl.value && pair.talukaList) {
+                loadTalukasForDatalist(distEl.value, pair.talukaList);
+            }
+
+            // On Taluka Input / Change
+            if (talukaEl && pair.villageList) {
+                talukaEl.addEventListener('input', () => {
+                    const talukaVal = talukaEl.value.trim();
+                    if (talukaVal.length >= 2) {
+                        loadVillagesForDatalist(talukaVal, pair.villageList);
+                    }
+                });
+                if (talukaEl.value) {
+                    loadVillagesForDatalist(talukaEl.value, pair.villageList);
+                }
+            }
+        }
     });
 }

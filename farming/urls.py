@@ -11,6 +11,11 @@ urlpatterns = [
     path('api/weather/', views.api_weather_view, name='api_weather'),
     path('contact/', views.contact_view, name='contact'),
 
+    # Location Dependent Dropdown JSON APIs
+    path('api/districts/', views.api_districts_view, name='api_districts'),
+    path('api/talukas/', views.api_talukas_view, name='api_talukas'),
+    path('api/villages/', views.api_villages_view, name='api_villages'),
+
     # Authentication & Registration OTP Verification
     path('register/', views.register_view, name='register'),
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
@@ -24,7 +29,6 @@ urlpatterns = [
     path('forgot-password/resend-otp/', views.resend_password_reset_otp_view, name='resend_password_reset_otp'),
     path('forgot-password/reset/', views.reset_password_view, name='reset_password'),
     path('forgot-password/success/', views.password_reset_success_view, name='password_reset_success'),
-
 
     # Farmer Management Portal (Login Required)
     path('dashboard/', views.dashboard_view, name='dashboard'),
