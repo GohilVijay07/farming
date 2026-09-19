@@ -196,20 +196,29 @@ function initCropSearch() {
    6. Farming Tips Category Filter Tabs (farming_tips.html)
    ========================================================================== */
 function initTipsFilter() {
-    const tabButtons = document.querySelectorAll('.tip-category-tab');
-    const categorySections = document.querySelectorAll('.tip-category-section');
+    const tabButtons = document.querySelectorAll('.filter-tabs .filter-btn, .tip-category-tab, .filter-btn[data-filter]');
+    const categorySections = document.querySelectorAll('.tips-category-group, .tip-category-section');
 
     if (tabButtons.length > 0 && categorySections.length > 0) {
         tabButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 tabButtons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
-                const targetCategory = btn.getAttribute('data-category');
+                const targetFilter = btn.getAttribute('data-filter') || btn.getAttribute('data-category') || 'all';
 
                 categorySections.forEach(section => {
-                    if (targetCategory === 'all' || section.getAttribute('data-category') === targetCategory) {
+                    const sectionSlug = section.getAttribute('data-slug') || section.getAttribute('data-category');
+                    if (targetFilter === 'all' || sectionSlug === targetFilter) {
                         section.style.display = 'block';
+                        section.style.opacity = '0';
+                        section.style.transform = 'translateY(8px)';
+                        section.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                        requestAnimationFrame(() => {
+                            section.style.opacity = '1';
+                            section.style.transform = 'translateY(0)';
+                        });
                     } else {
                         section.style.display = 'none';
                     }
